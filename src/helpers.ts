@@ -1,0 +1,89 @@
+import { SlashCommandInteractionContext } from "@itsmapleleaf/gatekeeper"
+import { log, LogLevel } from "./logging"
+import { Player } from "./Player"
+import { tryGetPlayer } from "./playerHandler"
+import { ErrorResult } from "./types"
+
+/** Escape Discord formatting  */
+export function escFmting(text: string) {
+	return text.replace(/[<>:*_~#@]/g, "$&")
+}
+
+/** Check if two numbers are close to each other by a certain margin */
+export function closeNums(a: number, b: number, closeBy: number) {
+	return Math.abs(a - b) <= closeBy
+}
+
+/** Takes a time string (hh:ss:mm) and returns its value in milliseconds */
+export function parseTime(time: string) {
+	const [seconds = 0, minutes = 0, hours = 0] = time
+		.split(":")
+		.map((n) => parseInt(n))
+		.reverse()
+
+	return ((hours * 60 + minutes) * 60 + seconds) * 1000
+}
+
+/** Format milliseconds to human time */
+export function fmtTime(time: number): string {
+	const twoDigits = (n: number) => n.toString().padStart(2, "0")
+
+	const seconds = Math.floor(time / 1000)
+	const minutes = Math.floor(seconds / 60)
+	const hours = Math.floor(minutes / 60)
+
+	return (
+		(hours ? hours + ":" : "") + (minutes % 60) + ":" + twoDigits(seconds % 60)
+	)
+}
+
+export function paginate<T>(
+	[...arr]: T[],
+	itemsPerPage: number,
+	page: number
+): { items: T[]; isLastPage: boolean; isFirstPage: boolean } {
+	const offset = page * itemsPerPage
+	const isLastPage = arr.length - offset <= itemsPerPage
+	return {
+		items: arr.splice(offset, itemsPerPage),
+		isLastPage,
+		isFirstPage: offset === 0,
+	}
+}
+
+export function checkError<T>(thing: T | ErrorResult): thing is T {
+	return "error" in thing
+}
+
+export const createPlayerCommandRun =
+	<T extends SlashCommandInteractionContext>(
+		callback: (ctx: T, player: Player) => void | Promise<unknown>
+	) =>
+	async (ctx: T) => {
+		const player = tryGetPlayer(ctx)
+		if (!player) return
+
+		try {
+			await callback(ctx, player)
+		} catch (e) {
+			log(e, LogLevel.Error)
+		}
+	}
+
+/** Shuffle an array, duh. Modified from https://stackoverflow.com/a/2450976 */
+export function shuffle<T>([...array]: T[]): T[] {
+	let currentIndex = array.length,
+		randomIndex
+
+	while (currentIndex != 0) {
+		randomIndex = Math.floor(Math.random() * currentIndex)
+		currentIndex--
+
+		const currentItem = array[currentIndex]
+		const randomItem = array[randomIndex]
+		if (currentItem != undefined) array[randomIndex] = currentItem
+		if (randomItem != undefined) array[currentIndex] = randomItem
+	}
+
+	return array
+}
