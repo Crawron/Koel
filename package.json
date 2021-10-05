@@ -11,7 +11,8 @@
 	},
 	"scripts": {
 		"dev": "ts-node src/main.ts",
-		"test": "jest"
+		"test": "jest",
+		"build": "tsc"
 	},
 	"dependencies": {
 		"@discordjs/voice": "^0.6.0",
