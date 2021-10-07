@@ -29,6 +29,8 @@ async function getYtdl() {
 	rimraf("./youtube-dl", (e) => {
 		if (e) throw e
 	})
+
+	console.log("Done :)")
 }
 
 getYtdl()
