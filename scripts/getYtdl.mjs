@@ -1,9 +1,9 @@
-const simpleGit = require("simple-git")
-const execa = require("execa")
-const cpy = require("cpy")
-const rimraf = require("rimraf")
+import simpleGit from "simple-git"
+import execa from "execa"
+import cpy from "cpy"
+import rimraf from "rimraf"
 
-require("dotenv/config")
+import "dotenv/config"
 
 async function getYtdl() {
 	const git = simpleGit()
@@ -25,8 +25,9 @@ async function getYtdl() {
 		"./node_modules/youtube-dl-exec/bin/"
 	)
 
+	console.log("Deleting cloned repo")
 	rimraf("./youtube-dl", (e) => {
-		throw e
+		if (e) throw e
 	})
 }
 

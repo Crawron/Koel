@@ -17,7 +17,7 @@
 	"scripts": {
 		"dev": "ts-node src/main.ts",
 		"test": "jest",
-		"getytdl": "node scripts/getYtdl.jsm",
+		"getytdl": "node scripts/getYtdl.mjs",
 		"build": "tsc"
 	},
 	"dependencies": {
