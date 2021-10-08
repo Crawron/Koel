@@ -23,7 +23,7 @@ export const nowPlayingCommand = defineSlashCommand({
 				thumbnail: currentSong.thumbnail
 					? { url: currentSong.thumbnail }
 					: undefined,
-				description: `**\`${fmtTime(player.currentPlaytime)} / ${fmtTime(
+				description: `**\`${fmtTime(player.currentTime)} / ${fmtTime(
 					currentSong.duration
 				)}\`** requested by <@${currentSong.requesterId}>`,
 			})

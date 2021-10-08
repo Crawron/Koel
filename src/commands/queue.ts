@@ -57,7 +57,7 @@ export const queueCommand = defineSlashCommand({
 				thumbnail: current?.thumbnail ? { url: current.thumbnail } : undefined,
 				description: `${
 					current
-						? `\`${fmtTime(player.currentPlaytime)} / ${fmtTime(
+						? `\`${fmtTime(player.currentTime)} / ${fmtTime(
 								current.duration
 						  )}\` Uploaded by ${escFmting(current.author)}, requested by <@${
 								current.requesterId

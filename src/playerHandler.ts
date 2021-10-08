@@ -1,5 +1,7 @@
 import { SlashCommandInteractionContext } from "@itsmapleleaf/gatekeeper"
 import {
+	BaseGuildTextChannel,
+	GuildChannel,
 	Snowflake,
 	StageChannel,
 	TextBasedChannels,
@@ -13,7 +15,7 @@ const activePlayers = new Map<Snowflake, Player>()
 export function tryGetPlayer(
 	ctx: SlashCommandInteractionContext
 ): Player | undefined {
-	if (!ctx.guild) {
+	if (!ctx.guild || ctx.channel?.type !== "GUILD_TEXT") {
 		ctx.reply(() => "This command is only available in guilds")
 		return
 	}
@@ -37,13 +39,18 @@ export function tryGetPlayer(
 	)
 }
 
+export function destroyPlayer(guildId: Snowflake): boolean {
+	activePlayers.get(guildId)?.destroy()
+	return activePlayers.delete(guildId)
+}
+
 export function findPlayer(guildId: Snowflake): Player | undefined {
 	return activePlayers.get(guildId)
 }
 
 export function createPlayer(
 	voiceChannel: VoiceChannel | StageChannel,
-	textChannel: TextBasedChannels
+	textChannel: BaseGuildTextChannel
 ) {
 	const newPlayer = new Player(voiceChannel, textChannel)
 	activePlayers.set(voiceChannel.guildId, newPlayer)

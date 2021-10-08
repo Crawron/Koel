@@ -6,8 +6,9 @@ import {
 	SlashCommandDefinition,
 } from "@itsmapleleaf/gatekeeper"
 import { log, LogLevel } from "./logging"
-import { pingCommand } from "./commands/ping"
 import { bold } from "chalk"
+
+import { pingCommand } from "./commands/ping"
 import { playCommand } from "./commands/play"
 import { queueCommand } from "./commands/queue"
 import { searchCommand } from "./search"
@@ -16,6 +17,8 @@ import { testCommand } from "./commands/testCommand"
 import { nowPlayingCommand } from "./commands/nowPlaying"
 import { shuffleCommand } from "./commands/shuffle"
 import { clearCommand } from "./commands/clear"
+import { leaveCommand } from "./commands/leave"
+import { joinCommand } from "./commands/join"
 
 const djsClient = new Client({ intents: ["GUILD_VOICE_STATES", "GUILDS"] })
 
@@ -38,11 +41,13 @@ const commands: SlashCommandDefinition<any>[] = [
 	nowPlayingCommand,
 	shuffleCommand,
 	clearCommand,
+	leaveCommand,
+	joinCommand,
 ]
 commands.forEach(gatekeeper.addCommand)
 
 djsClient.on("ready", () => {
-	log(`Ready`)
+	log(`Ready. Connected to ${bold(djsClient.user?.username)}`)
 	log(`Using ${bold(commandMode)} commands`)
 	log(`Loaded Commands: ${commands.map((cmd) => bold(cmd.name)).join(", ")}`)
 })

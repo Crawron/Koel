@@ -1,56 +1,43 @@
+/* Listen. I need something that can keep track of how much time has passed in very weird, whacky, strange, scenarios. There's a lot of time sensistive stuff in this project and for some reason none of the tools given to me actually are useful to keep track of anything, so I'm making my own */
+
 export class Timer {
-	private countedTime = 0
-	private startedAt = 0
-	timeout: NodeJS.Timeout | null = null
+	private accumulatedTime = 0
+	private startingTime: number | null = null
 
-	constructor(
-		/**In milliseconds*/ private _length: number,
-		public onEnd: () => void
-	) {}
-
-	set length(milliseconds: number) {
-		this._length = milliseconds
+	/** Start counting time, or resume counting if paused */
+	run() {
+		this.startingTime = Date.now()
 	}
 
-	private setupTimeout() {
-		if (this.timeout) clearTimeout(this.timeout)
-		this.timeout = setTimeout(this.onEnd, this._length - this.countedTime + 500)
+	/** Pause */
+	pause() {
+		this.accumulatedTime = this.time
+		this.startingTime = null
 	}
 
-	start(): void {
-		this.startedAt = Date.now()
-		this.setupTimeout()
+	/** Reset timer to zero, keeps the timer running if it is */
+	reset() {
+		this.time = 0
 	}
 
-	pause(): void {
-		this.countedTime = this.time
-		this.startedAt = 0
-		if (this.timeout) clearTimeout(this.timeout)
+	get isRunning() {
+		return this.startingTime != null
 	}
 
-	reset(): void {
-		this.countedTime = 0
-		if (this.isRunning) this.start()
+	/** Time since the last time the times started running */
+	private get timeDelta() {
+		if (!this.startingTime) return 0
+		return Date.now() - this.startingTime
 	}
 
-	stop(): void {
-		this.pause()
-		this.reset()
+	/** Elapsed time since first run, excluding paused time */
+	get time() {
+		return this.accumulatedTime + this.timeDelta
 	}
 
+	/** ... or arbitrarily set timer to a specific value. **In milliseconds** */
 	set time(time: number) {
-		this.startedAt = Date.now()
-		this.countedTime = time
-		this.setupTimeout()
-	}
-
-	/** In milliseconds */
-	get time(): number {
-		if (!this.isRunning) return this.countedTime
-		return Date.now() - this.startedAt + this.countedTime
-	}
-
-	get isRunning(): boolean {
-		return this.startedAt !== 0
+		this.accumulatedTime = time
+		if (this.isRunning) this.startingTime = Date.now()
 	}
 }

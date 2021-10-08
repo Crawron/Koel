@@ -5,25 +5,24 @@ import {
 	joinVoiceChannel,
 	NoSubscriberBehavior,
 } from "@discordjs/voice"
+import { bold } from "chalk"
 import {
 	VoiceChannel,
 	StageChannel,
 	TextBasedChannels,
 	Snowflake,
+	BaseGuildTextChannel,
 } from "discord.js"
-import {
-	autorun,
-	IReactionDisposer,
-	makeAutoObservable,
-	runInAction,
-} from "mobx"
+import { autorun, IReactionDisposer, makeAutoObservable } from "mobx"
 import { Readable } from "stream"
 import { raw } from "youtube-dl-exec"
+
 import ytdl from "ytdl-core"
 import ytpl from "ytpl"
 import ytsr from "ytsr"
 import { parseTime, shuffle } from "./helpers"
-import { log, LogLevel } from "./logging"
+import { log } from "./logging"
+import { VoicePlayer } from "./VoicePlayer"
 
 export type Song = {
 	title: string
@@ -39,111 +38,33 @@ type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
 export class Player {
 	queue: Song[] = []
 	status: "Playing" | "Paused" | "StandBy" = "StandBy"
-	private lastSeenPlaytime = 0
 	private _queuePosition = 0
+
+	private coolPlayer: VoicePlayer
 
 	private disposeCallbacks: IReactionDisposer[] = []
 
-	private player = createAudioPlayer({
-		behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
-	})
-
 	constructor(
 		public voiceChannel: VoiceChannel | StageChannel,
-		public textChannel: TextBasedChannels
+		public textChannel: BaseGuildTextChannel
 	) {
-		makeAutoObservable(this, { currentPlaytime: false })
+		makeAutoObservable(this)
 
-		this.disposeCallbacks.push(
-			// autorun(() => {
-			// 	const { currentSong, queuePosition, currentPlaytime, queue, status } =
-			// 		this
-			// 	log(
-			// 		{
-			// 			status,
-			// 			queuePosition,
-			// 			currentPlaytime,
-			// 			currentSongTitle: currentSong?.title,
-			// 			queueLength: queue.length,
-			// 		},
-			// 		LogLevel.Debug
-			// 	)
-			// }),
-			autorun(() => {
-				if (this.status === "StandBy" && this.currentSong != undefined)
-					runInAction(() => (this.status = "Playing"))
-			}),
-			autorun(() => {
-				if (this.status === "Playing") {
-					if (this.currentSong) this.playCurrent()
-					else runInAction(() => (this.status = "StandBy"))
-				}
-			}),
-			autorun(() => {
-				if (!this.currentSong && this.status !== "StandBy") {
-					runInAction(() => (this.status = "StandBy"))
-					this.player.stop()
-				}
-			}),
-			autorun(() => {
-				if (this.currentSong) {
-					this.textChannel.send(`Playing **${this.currentSong.title}**`)
-				}
-			})
+		this.coolPlayer = new VoicePlayer(
+			voiceChannel,
+			() => (this.queuePosition += 1)
 		)
 
-		this.player.on("stateChange", (oldState, newState) => {
-			if (newState.status === oldState.status)
-				log(`Changed to same state! ${oldState.status}`, LogLevel.Debug)
-
-			if (newState.status === "playing")
-				runInAction(() => (this.lastSeenPlaytime = newState.playbackDuration))
-
-			if (oldState.status === "playing")
-				runInAction(() => (this.lastSeenPlaytime = oldState.playbackDuration))
-
-			const hasMostlyPlayed = true
-			// this.currentPlaytime > (this.currentSong?.duration ?? 0 - 2000)
-
-			if (
-				oldState.status === "playing" &&
-				newState.status === "idle" &&
-				hasMostlyPlayed
-			)
-				this.queuePosition += 1
-		})
+		this.disposeCallbacks.push(
+			autorun(() => {
+				if (this.currentSong != null) this.setPlayStream()
+			})
+		)
 	}
 
 	destroy() {
+		this.coolPlayer.destroy()
 		this.disposeCallbacks.forEach((cb) => cb())
-	}
-
-	private get voiceConnection() {
-		return (
-			getVoiceConnection(this.voiceChannel.guildId) ??
-			joinVoiceChannel({
-				guildId: this.voiceChannel.guildId,
-				channelId: this.voiceChannel.id,
-				adapterCreator: this.voiceChannel.guild.voiceAdapterCreator,
-				selfDeaf: false,
-			})
-		)
-	}
-
-	get currentPlaytime() {
-		// log(
-		// 	{
-		// 		playedDuration:
-		// 			this.player.state.status === "playing" &&
-		// 			this.player.state.playbackDuration,
-		// 		seenDuration: this.lastSeenPlaytime,
-		// 	},
-		// 	LogLevel.Debug
-		// )
-
-		return this.player.state.status === "playing"
-			? this.player.state.playbackDuration
-			: this.lastSeenPlaytime
 	}
 
 	get upcomingSongs() {
@@ -170,7 +91,6 @@ export class Player {
 
 	addToQueue(...songs: Song[]) {
 		this.queue.push(...songs)
-		// log({ pushedToQueue: songs }, LogLevel.Debug)
 	}
 
 	clearQueue() {
@@ -181,9 +101,15 @@ export class Player {
 		this.queue.push(...shuffle(this.queue.splice(this.queuePosition + 1)))
 	}
 
-	playCurrent() {
+	get currentTime() {
+		return this.coolPlayer.playedTime
+	}
+
+	private setPlayStream() {
 		const song = this.currentSong
 		if (!song) return
+
+		log(`Set stream to... ${bold(song.title)}`, 0)
 
 		// https://github.com/fent/node-ytdl-core/issues/994#issuecomment-906581288
 		const audioReadable = raw(
@@ -197,10 +123,7 @@ export class Player {
 			{ stdio: ["ignore", "pipe", "ignore"] }
 		)
 
-		const resource = createAudioResource(audioReadable.stdout as Readable)
-
-		this.voiceConnection.subscribe(this.player)
-		this.player.play(resource)
+		this.coolPlayer.playStream(audioReadable.stdout as Readable)
 	}
 }
 
