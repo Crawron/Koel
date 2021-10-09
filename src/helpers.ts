@@ -1,6 +1,6 @@
 import { SlashCommandInteractionContext } from "@itsmapleleaf/gatekeeper"
 import { log, LogLevel } from "./logging"
-import { Player } from "./Player"
+import { Queue } from "./Queue"
 import { tryGetPlayer } from "./playerHandler"
 
 /** Escape Discord formatting  */
@@ -54,7 +54,7 @@ export function paginate<T>([...arr]: T[], itemsPerPage: number): Page<T>[] {
 
 export const createPlayerCommandRun =
 	<T extends SlashCommandInteractionContext>(
-		callback: (ctx: T, player: Player) => void | Promise<unknown>
+		callback: (ctx: T, player: Queue) => void | Promise<unknown>
 	) =>
 	async (ctx: T) => {
 		const player = tryGetPlayer(ctx)

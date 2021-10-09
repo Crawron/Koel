@@ -1,5 +1,5 @@
 import { buttonComponent, defineSlashCommand } from "@itsmapleleaf/gatekeeper"
-import { checkRequestType, resolveQueueRequest } from "../Player"
+import { checkRequestType, resolveQueueRequest } from "../Queue"
 import { tryGetPlayer } from "../playerHandler"
 
 export const playCommand = defineSlashCommand({

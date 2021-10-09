@@ -5,14 +5,14 @@ import {
 	StageChannel,
 	VoiceChannel,
 } from "discord.js"
-import { Player } from "./Player"
+import { Queue } from "./Queue"
 
-const activePlayers = new Map<Snowflake, Player>()
+const activePlayers = new Map<Snowflake, Queue>()
 
 /** Does all the player command context checking logic and replies accordingly on error. Returns a Player object if successful. */
 export function tryGetPlayer(
 	ctx: SlashCommandInteractionContext
-): Player | undefined {
+): Queue | undefined {
 	if (!ctx.guild || ctx.channel?.type !== "GUILD_TEXT") {
 		ctx.reply(() => "This command is only available in guilds")
 		return
@@ -42,7 +42,7 @@ export function destroyPlayer(guildId: Snowflake): boolean {
 	return activePlayers.delete(guildId)
 }
 
-export function findPlayer(guildId: Snowflake): Player | undefined {
+export function findPlayer(guildId: Snowflake): Queue | undefined {
 	return activePlayers.get(guildId)
 }
 
@@ -50,7 +50,7 @@ export function createPlayer(
 	voiceChannel: VoiceChannel | StageChannel,
 	textChannel: BaseGuildTextChannel
 ) {
-	const newPlayer = new Player(voiceChannel, textChannel)
+	const newPlayer = new Queue(voiceChannel, textChannel)
 	activePlayers.set(voiceChannel.guildId, newPlayer)
 	return newPlayer
 }

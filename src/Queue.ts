@@ -27,8 +27,8 @@ export type Song = {
 
 type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
 
-export class Player {
-	queue: Song[] = []
+export class Queue {
+	list: Song[] = []
 	status: "Playing" | "Paused" | "StandBy" = "StandBy"
 	private _queuePosition = 0
 
@@ -60,17 +60,17 @@ export class Player {
 	}
 
 	get upcomingSongs() {
-		return this.queue.slice(this.queuePosition + 1)
+		return this.list.slice(this.queuePosition + 1)
 	}
 
 	get currentSong() {
-		if (this.queuePosition <= this.queue.length - 1)
-			return this.queue[this.queuePosition]
+		if (this.queuePosition <= this.list.length - 1)
+			return this.list[this.queuePosition]
 		else return undefined
 	}
 
 	get history() {
-		return this.queue.slice(0, this.queuePosition)
+		return this.list.slice(0, this.queuePosition)
 	}
 
 	get queuePosition() {
@@ -78,19 +78,19 @@ export class Player {
 	}
 
 	set queuePosition(value: number) {
-		this._queuePosition = Math.max(Math.min(value, this.queue.length), 0)
+		this._queuePosition = Math.max(Math.min(value, this.list.length), 0)
 	}
 
 	addToQueue(...songs: Song[]) {
-		this.queue.push(...songs)
+		this.list.push(...songs)
 	}
 
 	clearQueue() {
-		this.queue.splice(this._queuePosition + 1)
+		this.list.splice(this._queuePosition + 1)
 	}
 
 	shuffle() {
-		this.queue.push(...shuffle(this.queue.splice(this.queuePosition + 1)))
+		this.list.push(...shuffle(this.list.splice(this.queuePosition + 1)))
 	}
 
 	get currentTime() {

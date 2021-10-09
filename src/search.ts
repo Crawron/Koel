@@ -5,7 +5,7 @@ import {
 } from "@itsmapleleaf/gatekeeper"
 import { MessageSelectOptionData } from "discord.js"
 import { escFmting, fmtTime } from "./helpers"
-import { resolveQueueRequest, Song } from "./Player"
+import { resolveQueueRequest, Song } from "./Queue"
 import { tryGetPlayer } from "./playerHandler"
 
 export const searchCommand = defineSlashCommand({

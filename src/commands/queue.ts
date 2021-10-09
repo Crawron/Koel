@@ -16,13 +16,13 @@ export const queueCommand = defineSlashCommand({
 
 		const itemsPerPage = 10
 
-		const pageCount = Math.floor(player.queue.length / itemsPerPage) + 1
+		const pageCount = Math.floor(player.list.length / itemsPerPage) + 1
 		let pageNumber = Math.min(
 			Math.max(ctx.options.page ?? 1 - 1, 0),
 			pageCount - 1
 		)
 
-		const nextSongs = player.queue.filter((_, i) => i > player.queuePosition)
+		const nextSongs = player.list.filter((_, i) => i > player.queuePosition)
 
 		const nextSongsStr = nextSongs.map(
 			(song, i) =>
