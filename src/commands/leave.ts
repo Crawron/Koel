@@ -9,6 +9,6 @@ export const leaveCommand = defineSlashCommand({
 		if (!player) return
 
 		destroyPlayer(ctx.guild?.id ?? "")
-		ctx.reply(() => ":wave:_ _")
+		ctx.reply(() => "_:wave:_")
 	},
 })
