@@ -8,14 +8,7 @@ export const leaveCommand = defineSlashCommand({
 		const player = tryGetPlayer(ctx)
 		if (!player) return
 
-		if (!ctx.guild) {
-			ctx.reply(() => "Guild only command")
-			return
-		}
-
-		const result = destroyPlayer(ctx.guild.id)
-
-		if (result) ctx.reply(() => "Bye lol")
-		else ctx.reply(() => "Uhh... Somehow I couldn't do that, try again??")
+		destroyPlayer(ctx.guild?.id ?? "")
+		ctx.reply(() => ":wave:_ _")
 	},
 })
