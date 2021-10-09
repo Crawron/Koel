@@ -31,7 +31,7 @@ export const queueCommand = defineSlashCommand({
 				)}\` _<@${song.requesterId}>_`
 		)
 
-		let pageList = paginate(nextSongsStr, itemsPerPage, pageNumber)
+		const queuePages = paginate(nextSongsStr, itemsPerPage)
 
 		const totalRuntime = fmtTime(nextSongs.reduce((p, c) => p + c.duration, 0))
 
@@ -51,53 +51,54 @@ export const queueCommand = defineSlashCommand({
 			return
 		}
 
-		ctx.reply(() => [
-			embedComponent({
-				title,
-				thumbnail: current?.thumbnail ? { url: current.thumbnail } : undefined,
-				description: `${
-					current
-						? `\`${fmtTime(player.currentTime)} / ${fmtTime(
-								current.duration
-						  )}\` Uploaded by ${escFmting(current.author)}, requested by <@${
-								current.requesterId
-						  }>\n`
-						: ""
-				}${
-					nextSongs.length || "No"
-				} songs left. Total runtime **${totalRuntime}**`,
-				fields: pageList.items.join("\n")
-					? [{ name: "Up next", value: pageList.items.join("\n") }]
-					: [],
-				footer:
-					pageCount > 1
-						? { text: `Page ${pageNumber + 1} of ${pageCount}` }
+		ctx.reply(() => {
+			const currentPage = queuePages[pageNumber]
+			if (!currentPage) return "Empty"
+
+			return [
+				embedComponent({
+					title,
+					thumbnail: current?.thumbnail
+						? { url: current.thumbnail }
 						: undefined,
-			}),
-			pageCount > 1
-				? [
-						buttonComponent({
-							emoji: "⬅️",
-							label: "Previous",
-							style: "SECONDARY",
-							disabled: pageList.isFirstPage,
-							onClick: () => {
-								pageNumber -= 1
-								pageList = paginate(nextSongsStr, itemsPerPage, pageNumber)
-							},
-						}),
-						buttonComponent({
-							emoji: "➡️",
-							label: "Next",
-							style: "SECONDARY",
-							disabled: pageList.isLastPage,
-							onClick: () => {
-								pageNumber += 1
-								pageList = paginate(nextSongsStr, itemsPerPage, pageNumber)
-							},
-						}),
-				  ]
-				: [],
-		])
+					description: `${
+						current
+							? `\`${fmtTime(player.currentTime)} / ${fmtTime(
+									current.duration
+							  )}\` Uploaded by ${escFmting(current.author)}, requested by <@${
+									current.requesterId
+							  }>\n`
+							: ""
+					}${
+						nextSongs.length || "No"
+					} songs left. Total runtime **${totalRuntime}**`,
+					fields: currentPage.items.join("\n")
+						? [{ name: "Up next", value: currentPage.items.join("\n") }]
+						: [],
+					footer:
+						pageCount > 1
+							? { text: `Page ${pageNumber + 1} of ${pageCount}` }
+							: undefined,
+				}),
+				pageCount > 1
+					? [
+							buttonComponent({
+								emoji: "⬅️",
+								label: "Previous",
+								style: "SECONDARY",
+								disabled: currentPage.isFirstPage,
+								onClick: () => (pageNumber -= 1),
+							}),
+							buttonComponent({
+								emoji: "➡️",
+								label: "Next",
+								style: "SECONDARY",
+								disabled: currentPage.isLastPage,
+								onClick: () => (pageNumber += 1),
+							}),
+					  ]
+					: [],
+			]
+		})
 	},
 })
