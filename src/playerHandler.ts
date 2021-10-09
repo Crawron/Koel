@@ -1,10 +1,8 @@
 import { SlashCommandInteractionContext } from "@itsmapleleaf/gatekeeper"
 import {
 	BaseGuildTextChannel,
-	GuildChannel,
 	Snowflake,
 	StageChannel,
-	TextBasedChannels,
 	VoiceChannel,
 } from "discord.js"
 import { Player } from "./Player"

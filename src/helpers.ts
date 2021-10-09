@@ -2,7 +2,6 @@ import { SlashCommandInteractionContext } from "@itsmapleleaf/gatekeeper"
 import { log, LogLevel } from "./logging"
 import { Player } from "./Player"
 import { tryGetPlayer } from "./playerHandler"
-import { ErrorResult } from "./types"
 
 /** Escape Discord formatting  */
 export function escFmting(text: string) {
@@ -49,10 +48,6 @@ export function paginate<T>(
 		isLastPage,
 		isFirstPage: offset === 0,
 	}
-}
-
-export function checkError<T>(thing: T | ErrorResult): thing is T {
-	return "error" in thing
 }
 
 export const createPlayerCommandRun =

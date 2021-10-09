@@ -1,15 +1,7 @@
-import {
-	createAudioPlayer,
-	createAudioResource,
-	getVoiceConnection,
-	joinVoiceChannel,
-	NoSubscriberBehavior,
-} from "@discordjs/voice"
 import { bold } from "chalk"
 import {
 	VoiceChannel,
 	StageChannel,
-	TextBasedChannels,
 	Snowflake,
 	BaseGuildTextChannel,
 } from "discord.js"

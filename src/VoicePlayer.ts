@@ -1,6 +1,5 @@
 import {
 	AudioPlayer,
-	AudioPlayerStatus,
 	createAudioPlayer,
 	createAudioResource,
 	joinVoiceChannel,
