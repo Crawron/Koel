@@ -1,15 +1,17 @@
-import { defineSlashCommand } from "@itsmapleleaf/gatekeeper"
+import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
 import { tryGetPlayer } from "../playerHandler"
 
-export const clearCommand = defineSlashCommand({
-	name: "clear",
-	description: "Clear the queue",
-	run(ctx) {
-		const player = tryGetPlayer(ctx)
-		if (!player) return
+export default function defineCommands(gatekeeper: Gatekeeper) {
+    gatekeeper.addSlashCommand({
+        name: "clear",
+        description: "Clear the queue",
+        run(ctx) {
+            const player = tryGetPlayer(ctx)
+            if (!player) return
 
-		player.clearQueue()
+            player.clearQueue()
 
-		ctx.reply(() => "_Cleared_ :thumbsup:")
-	},
-})
+            ctx.reply(() => "_Cleared_ :thumbsup:")
+        },
+    });
+}

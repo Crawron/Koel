@@ -1,16 +1,18 @@
-import { defineSlashCommand } from "@itsmapleleaf/gatekeeper"
+import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
 import { shuffle } from "../helpers"
 import { tryGetPlayer } from "../playerHandler"
 
-export const shuffleCommand = defineSlashCommand({
-	name: "shuffle",
-	description: "Shuffle the player queue",
-	run(ctx) {
-		const player = tryGetPlayer(ctx)
-		if (!player) return
+export default function defineCommands(gatekeeper: Gatekeeper) {
+    gatekeeper.addSlashCommand({
+        name: "shuffle",
+        description: "Shuffle the player queue",
+        run(ctx) {
+            const player = tryGetPlayer(ctx)
+            if (!player) return
 
-		player.shuffle()
+            player.shuffle()
 
-		ctx.reply(() => shuffle([..."Shuffled 👍"]).join(""))
-	},
-})
+            ctx.reply(() => shuffle([..."Shuffled 👍"]).join(""))
+        },
+    });
+}

@@ -1,9 +1,11 @@
-import { defineSlashCommand } from "@itsmapleleaf/gatekeeper"
+import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
 
-export const pingCommand = defineSlashCommand({
-	name: "ping",
-	description: "Ping check",
-	run(ctx) {
-		ctx.reply(() => "Pong")
-	},
-})
+export default function defineCommands(gatekeeper: Gatekeeper) {
+    gatekeeper.addSlashCommand({
+        name: "ping",
+        description: "Ping check",
+        run(ctx) {
+            ctx.reply(() => "Pong")
+        },
+    });
+}

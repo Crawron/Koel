@@ -1,100 +1,122 @@
-import { buttonComponent, defineSlashCommand } from "@itsmapleleaf/gatekeeper"
+import {
+	buttonComponent,
+	SlashCommandInteractionContext,
+	SlashCommandOptionConfigMap,
+	Gatekeeper,
+} from "@itsmapleleaf/gatekeeper"
 import { checkRequestType, resolveQueueRequest } from "../Queue"
 import { tryGetPlayer } from "../playerHandler"
 
-export const playCommand = defineSlashCommand({
-	name: "play",
-	description: "Queue a song then playing",
-	options: {
-		song: { description: "Song to queue", type: "STRING", required: true },
-	},
-	async run(ctx) {
-		ctx.defer()
+const playCommandOptions = {
+	song: { description: "Song to queue", type: "STRING", required: true },
+} as const
 
-		const player = tryGetPlayer(ctx)
-		if (!player) return
+const playCommandRun = async (
+	ctx: SlashCommandInteractionContext<
+		SlashCommandOptionConfigMap & typeof playCommandOptions
+	>
+) => {
+	ctx.defer()
 
-		const { song: request } = ctx.options
+	const player = tryGetPlayer(ctx)
+	if (!player) return
 
-		const reqType = checkRequestType(request)
+	const { song: request } = ctx.options
 
-		if (reqType === "PlaylistVideo") {
-			const promptReply = ctx.reply(() => [
-				"This is part of a playlist. Should I queue the **entire playlist** or **just this one song**?",
-				buttonComponent({
-					label: "Entire playlist",
-					style: "PRIMARY",
-					onClick: async () => {
-						ctx.reply(() => "Aight, hold on...")
+	const reqType = checkRequestType(request)
 
-						const songs = await resolveQueueRequest(
-							request,
-							ctx.user.id,
-							"Playlist"
+	if (reqType === "PlaylistVideo") {
+		const promptReply = ctx.reply(() => [
+			"This is part of a playlist. Should I queue the **entire playlist** or **just this one song**?",
+			buttonComponent({
+				label: "Entire playlist",
+				style: "PRIMARY",
+				onClick: async () => {
+					ctx.reply(() => "Aight, hold on...")
+
+					const songs = await resolveQueueRequest(
+						request,
+						ctx.user.id,
+						"Playlist"
+					)
+
+					if (songs.length < 1)
+						return ctx.reply(() => "Failed to queue any of those")
+
+					player.addToQueue(...songs)
+
+					if (songs.length > 5)
+						ctx.reply(() => `Queued **${songs.length}** songs...`)
+					else
+						ctx.reply(
+							() =>
+								`Queued ${songs
+									.map((s) => `**[${s.title}](<${s.source}>)**`)
+									.join(", ")}`
 						)
+				},
+			}),
+			buttonComponent({
+				label: "Just this one song",
+				style: "PRIMARY",
+				onClick: async () => {
+					const [song] = await resolveQueueRequest(
+						request,
+						ctx.user.id,
+						"Video"
+					)
 
-						if (songs.length < 1)
-							return ctx.reply(() => "Failed to queue any of those")
+					if (!song) {
+						ctx.reply(() => `Failed to queue \`${request}\``)
+						return
+					}
 
-						player.addToQueue(...songs)
+					player.addToQueue(song)
 
-						if (songs.length > 5)
-							ctx.reply(() => `Queued **${songs.length}** songs...`)
-						else
-							ctx.reply(
-								() =>
-									`Queued ${songs
-										.map((s) => `**[${s.title}](<${s.source}>)**`)
-										.join(", ")}`
-							)
-					},
-				}),
-				buttonComponent({
-					label: "Just this one song",
-					style: "PRIMARY",
-					onClick: async () => {
-						const [song] = await resolveQueueRequest(
-							request,
-							ctx.user.id,
-							"Video"
-						)
+					ctx.reply(() => `Queued **[${song.title}](<${song.source}>)**`)
+				},
+			}),
+			buttonComponent({
+				label: "Cancel",
+				style: "SECONDARY",
+				onClick: () => promptReply.delete(),
+			}),
+		])
+		return
+	}
 
-						if (!song) {
-							ctx.reply(() => `Failed to queue \`${request}\``)
-							return
-						}
+	const songs = await resolveQueueRequest(request, ctx.user.id, reqType)
+	if (reqType === "Query") songs.splice(1)
 
-						player.addToQueue(song)
+	if (songs.length < 1) {
+		ctx.reply(() => `Failed to queue \`${request}\``)
+		return
+	}
 
-						ctx.reply(() => `Queued **[${song.title}](<${song.source}>)**`)
-					},
-				}),
-				buttonComponent({
-					label: "Cancel",
-					style: "SECONDARY",
-					onClick: () => promptReply.delete(),
-				}),
-			])
-			return
-		}
+	player.addToQueue(...songs)
 
-		const songs = await resolveQueueRequest(request, ctx.user.id, reqType)
-		if (reqType === "Query") songs.splice(1)
+	if (songs.length > 5) ctx.reply(() => `Queued **${songs.length}** songs...`)
+	else
+		ctx.reply(
+			() =>
+				`Queued ${songs
+					.map((s) => `**[${s.title}](<${s.source}>)**`)
+					.join(", ")}`
+		)
+}
 
-		if (songs.length < 1) {
-			ctx.reply(() => `Failed to queue \`${request}\``)
-			return
-		}
+export default function defineCommands(gatekeeper: Gatekeeper) {
+    gatekeeper.addSlashCommand({
+        name: "play",
+        description: "Queue a song then playing",
+        options: playCommandOptions,
+        run: playCommandRun,
+    });
 
-		player.addToQueue(...songs)
-
-		if (songs.length > 5) ctx.reply(() => `Queued **${songs.length}** songs...`)
-		else
-			ctx.reply(
-				() =>
-					`Queued ${songs
-						.map((s) => `**[${s.title}](<${s.source}>)**`)
-						.join(", ")}`
-			)
-	},
-})
+    gatekeeper.addSlashCommand({
+        name: "p",
+        description: "Alias to /play",
+        options: playCommandOptions,
+        run: playCommandRun,
+    });
+}

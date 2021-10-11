@@ -1,7 +1,9 @@
-import { defineSlashCommand } from "@itsmapleleaf/gatekeeper"
+import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
 
-export const historyCommand = defineSlashCommand({
-	name: "history",
-	description: "Show a history of previously played songs",
-	run() {},
-})
+export default function defineCommands(gatekeeper: Gatekeeper) {
+    gatekeeper.addSlashCommand({
+        name: "history",
+        description: "Show a history of previously played songs",
+        run() {},
+    });
+}
