@@ -39,41 +39,46 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 				})
 			)
 
-			const replyMessage = ctx.reply(() => [
-				`**Results for \`${escFmting(query)}\`**`,
-				"> Pick songs to **Add to Queue**. _You can pick one or more \\💙_",
-				selectMenuComponent({
-					options,
-					maxValues: options.length,
-					selected,
-					onSelect: ({ values }) => {
-						selected = values
-					},
-				}),
-				buttonComponent({
-					label: "Add to Queue",
-					style: "PRIMARY",
-					onClick: () => {
-						const selectedSongs = selected
-							.map((v) => songs[parseInt(v)])
-							.filter((song): song is Song => !!song)
+			const selectedSongs: Song[] = []
 
-						player.addToQueue(...selectedSongs)
+			const replyMessage = ctx.reply(() => {
+				if (selectedSongs.length < 1) {
+					return [
+						`**Results for \`${escFmting(query)}\`**`,
+						"> Pick songs to **Add to Queue**. _You can pick one or more \\💙_",
+						selectMenuComponent({
+							options,
+							maxValues: options.length,
+							selected,
+							onSelect: ({ values }) => {
+								selected = values
+							},
+						}),
+						buttonComponent({
+							label: "Add to Queue",
+							style: "PRIMARY",
+							onClick: () => {
+								selectedSongs.push(
+									...selected
+										.map((v) => songs[parseInt(v)])
+										.filter((song): song is Song => !!song)
+								)
 
-						ctx.reply(
-							() =>
-								`Added ${selectedSongs
-									.map((v) => `**[${escFmting(v.title)}](<${v.source}>)**`)
-									.join(", ")} to the queue`
-						)
-					},
-				}),
-				buttonComponent({
-					label: "Cancel",
-					style: "SECONDARY",
-					onClick: () => replyMessage.delete(),
-				}),
-			])
+								player.addToQueue(...selectedSongs)
+							},
+						}),
+						buttonComponent({
+							label: "Cancel",
+							style: "SECONDARY",
+							onClick: () => replyMessage.delete(),
+						}),
+					]
+				} else {
+					return `Added ${selectedSongs
+						.map((v) => `**[${escFmting(v.title)}](<${v.source}>)**`)
+						.join(", ")} to the queue`
+				}
+			})
 		},
 	})
 }
