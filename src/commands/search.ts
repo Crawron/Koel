@@ -4,7 +4,7 @@ import {
 	Gatekeeper,
 } from "@itsmapleleaf/gatekeeper"
 import { MessageSelectOptionData } from "discord.js"
-import { escFmting, fmtTime } from "../helpers"
+import { escFmting, fmtTime, getQueueAddedMessage } from "../helpers"
 import { resolveQueueRequest, Song } from "../Queue"
 import { tryGetPlayer } from "../playerHandler"
 
@@ -74,9 +74,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 						}),
 					]
 				} else {
-					return `Added ${selectedSongs
-						.map((v) => `**[${escFmting(v.title)}](<${v.source}>)**`)
-						.join(", ")} to the queue`
+					return getQueueAddedMessage(...selectedSongs)
 				}
 			})
 		},

@@ -1,6 +1,10 @@
-import { SlashCommandInteractionContext } from "@itsmapleleaf/gatekeeper"
+import {
+	buttonComponent,
+	ButtonInteractionContext,
+	SlashCommandInteractionContext,
+} from "@itsmapleleaf/gatekeeper"
 import { log, LogLevel } from "./logging"
-import { Queue } from "./Queue"
+import { Queue, Song } from "./Queue"
 import { tryGetPlayer } from "./playerHandler"
 
 /** Escape Discord formatting  */
@@ -83,4 +87,27 @@ export function shuffle<T>([...array]: T[]): T[] {
 	}
 
 	return array
+}
+
+export function getQueueAddedMessage(...songs: Song[]) {
+	const songList = songs
+		.map((song) => `[${escFmting(song.title)}](<${song.source}>)`)
+		.join(", ")
+
+	if (songList.length > 250) return `Queued ${songs.length} songs`
+	else return `Queued ${songList}`
+}
+
+export function accentButton(
+	label: string,
+	callback: (ctx: ButtonInteractionContext) => void
+) {
+	return buttonComponent({ label, style: "PRIMARY", onClick: callback })
+}
+
+export function grayButton(
+	label: string,
+	callback: (ctx: ButtonInteractionContext) => void
+) {
+	return buttonComponent({ label, style: "SECONDARY", onClick: callback })
 }

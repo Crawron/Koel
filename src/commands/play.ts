@@ -1,11 +1,16 @@
 import {
-	buttonComponent,
 	SlashCommandInteractionContext,
 	SlashCommandOptionConfigMap,
 	Gatekeeper,
 } from "@itsmapleleaf/gatekeeper"
-import { checkRequestType, resolveQueueRequest } from "../Queue"
+import {
+	checkRequestType,
+	RequestType,
+	resolveQueueRequest,
+	Song,
+} from "../Queue"
 import { tryGetPlayer } from "../playerHandler"
+import { accentButton, getQueueAddedMessage, grayButton } from "../helpers"
 
 const playCommandOptions = {
 	song: { description: "Song to queue", type: "STRING", required: true },
@@ -23,100 +28,61 @@ const playCommandRun = async (
 
 	const { song: request } = ctx.options
 
+	let resolved = false
+	const songs: Song[] = []
+
+	async function resolveRequest(reqType: RequestType) {
+		songs.push(...(await resolveQueueRequest(request, ctx.user.id, reqType)))
+		if (reqType === "Query") songs.splice(1)
+
+		if (!player) return
+		player.addToQueue(...songs)
+
+		resolved = true
+		reply.refresh()
+		loading = false
+	}
+
 	const reqType = checkRequestType(request)
+	if (reqType !== "PlaylistVideo") await resolveRequest(reqType)
 
-	if (reqType === "PlaylistVideo") {
-		const promptReply = ctx.reply(() => [
-			"This is part of a playlist. Should I queue the **entire playlist** or **just this one song**?",
-			buttonComponent({
-				label: "Entire playlist",
-				style: "PRIMARY",
-				onClick: async () => {
-					ctx.reply(() => "Aight, hold on...")
+	let loading = false
 
-					const songs = await resolveQueueRequest(
-						request,
-						ctx.user.id,
-						"Playlist"
-					)
+	const reply = ctx.reply(() => {
+		if (loading) return "One sec..."
+		if (!resolved)
+			return [
+				"This is part of a playlist. Should I queue the **entire playlist** or **just this one song**?",
+				accentButton("Entire playlist", async (ctx) => {
+					ctx.defer()
+					loading = true
+					resolveRequest("Playlist")
+				}),
+				accentButton("Just this one song", async (ctx) => {
+					ctx.defer()
+					loading = true
+					resolveRequest("Video")
+				}),
+				grayButton("Cancel", () => reply.delete()),
+			]
 
-					if (songs.length < 1)
-						return ctx.reply(() => "Failed to queue any of those")
-
-					player.addToQueue(...songs)
-
-					if (songs.length > 5)
-						ctx.reply(() => `Queued **${songs.length}** songs...`)
-					else
-						ctx.reply(
-							() =>
-								`Queued ${songs
-									.map((s) => `**[${s.title}](<${s.source}>)**`)
-									.join(", ")}`
-						)
-				},
-			}),
-			buttonComponent({
-				label: "Just this one song",
-				style: "PRIMARY",
-				onClick: async () => {
-					const [song] = await resolveQueueRequest(
-						request,
-						ctx.user.id,
-						"Video"
-					)
-
-					if (!song) {
-						ctx.reply(() => `Failed to queue \`${request}\``)
-						return
-					}
-
-					player.addToQueue(song)
-
-					ctx.reply(() => `Queued **[${song.title}](<${song.source}>)**`)
-				},
-			}),
-			buttonComponent({
-				label: "Cancel",
-				style: "SECONDARY",
-				onClick: () => promptReply.delete(),
-			}),
-		])
-		return
-	}
-
-	const songs = await resolveQueueRequest(request, ctx.user.id, reqType)
-	if (reqType === "Query") songs.splice(1)
-
-	if (songs.length < 1) {
-		ctx.reply(() => `Failed to queue \`${request}\``)
-		return
-	}
-
-	player.addToQueue(...songs)
-
-	if (songs.length > 5) ctx.reply(() => `Queued **${songs.length}** songs...`)
-	else
-		ctx.reply(
-			() =>
-				`Queued ${songs
-					.map((s) => `**[${s.title}](<${s.source}>)**`)
-					.join(", ")}`
-		)
+		if (songs.length < 1) return "Failed to get any songs to add to queue"
+		return getQueueAddedMessage(...songs)
+	})
 }
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
-    gatekeeper.addSlashCommand({
-        name: "play",
-        description: "Queue a song then playing",
-        options: playCommandOptions,
-        run: playCommandRun,
-    });
+	gatekeeper.addSlashCommand({
+		name: "play",
+		description: "Queue a song then playing",
+		options: playCommandOptions,
+		run: playCommandRun,
+	})
 
-    gatekeeper.addSlashCommand({
-        name: "p",
-        description: "Alias to /play",
-        options: playCommandOptions,
-        run: playCommandRun,
-    });
+	gatekeeper.addSlashCommand({
+		name: "p",
+		description: "Alias to /play",
+		options: playCommandOptions,
+		run: playCommandRun,
+	})
 }

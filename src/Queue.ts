@@ -25,7 +25,7 @@ export type Song = {
 	requesterId: string
 }
 
-type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
+export type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
 
 export class Queue {
 	list: Song[] = []
