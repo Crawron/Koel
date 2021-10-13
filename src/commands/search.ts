@@ -1,10 +1,12 @@
-import {
-	buttonComponent,
-	selectMenuComponent,
-	Gatekeeper,
-} from "@itsmapleleaf/gatekeeper"
+import { selectMenuComponent, Gatekeeper } from "@itsmapleleaf/gatekeeper"
 import { MessageSelectOptionData } from "discord.js"
-import { escFmting, fmtTime, getQueueAddedMessage } from "../helpers"
+import {
+	accentButton,
+	escFmting,
+	fmtTime,
+	getQueueAddedMessage,
+	grayButton,
+} from "../helpers"
 import { resolveQueueRequest, Song } from "../Queue"
 import { tryGetPlayer } from "../playerHandler"
 
@@ -50,28 +52,18 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 							options,
 							maxValues: options.length,
 							selected,
-							onSelect: ({ values }) => {
-								selected = values
-							},
+							onSelect: ({ values }) => (selected = values),
 						}),
-						buttonComponent({
-							label: "Add to Queue",
-							style: "PRIMARY",
-							onClick: () => {
-								selectedSongs.push(
-									...selected
-										.map((v) => songs[parseInt(v)])
-										.filter((song): song is Song => !!song)
-								)
+						accentButton("Add to Queue", () => {
+							selectedSongs.push(
+								...selected
+									.map((v) => songs[parseInt(v)])
+									.filter((song): song is Song => !!song)
+							)
 
-								player.addToQueue(...selectedSongs)
-							},
+							player.addToQueue(...selectedSongs)
 						}),
-						buttonComponent({
-							label: "Cancel",
-							style: "SECONDARY",
-							onClick: () => replyMessage.delete(),
-						}),
+						grayButton("Cancel", () => replyMessage.delete()),
 					]
 				} else {
 					return getQueueAddedMessage(...selectedSongs)
