@@ -11,6 +11,7 @@ import {
 } from "../Queue"
 import { tryGetPlayer } from "../playerHandler"
 import { accentButton, getQueueAddedMessage, grayButton } from "../helpers"
+import { log } from "../logging"
 
 const playCommandOptions = {
 	song: { description: "Song to queue", type: "STRING", required: true },
@@ -29,6 +30,7 @@ const playCommandRun = async (
 	const { song: request } = ctx.options
 
 	let resolved = false
+	let loading = false
 	const songs: Song[] = []
 
 	async function resolveRequest(reqType: RequestType) {
@@ -39,14 +41,12 @@ const playCommandRun = async (
 		player.addToQueue(...songs)
 
 		resolved = true
-		reply.refresh()
 		loading = false
+		reply.refresh()
 	}
 
 	const reqType = checkRequestType(request)
 	if (reqType !== "PlaylistVideo") await resolveRequest(reqType)
-
-	let loading = false
 
 	const reply = ctx.reply(() => {
 		if (loading) return "One sec..."
