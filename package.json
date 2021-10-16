@@ -15,7 +15,7 @@
 		"typescript": "^4.4.3"
 	},
 	"scripts": {
-		"dev": "ts-node src/main.ts",
+		"dev": "node -r ts-node/register --inspect=5858 src/main.ts",
 		"test": "jest",
 		"getytdl": "node scripts/getYtdl.mjs",
 		"build": "tsc"
