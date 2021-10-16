@@ -15,7 +15,7 @@ const commandMode = process.env.COMMANDMODE ?? "guild"
 		name: "Koel",
 		client: djsClient,
 		commandFolder: path.join(__dirname, "commands"),
-		logging: false,
+		logging: (process.env.LOGLEVEL ?? "1") === "0",
 	})
 
 	djsClient.on("ready", () => {
