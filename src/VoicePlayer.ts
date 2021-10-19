@@ -40,8 +40,6 @@ export class VoicePlayer {
 		this.connect()
 
 		this.player.on("stateChange", (oldState, newState) => {
-			log({ old: oldState.status, new: newState.status }, 0)
-
 			if (newState.status === "playing")
 				runInAction(() => (this.timer.time = newState.playbackDuration))
 
