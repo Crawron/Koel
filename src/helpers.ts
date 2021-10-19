@@ -4,12 +4,13 @@ import {
 	SlashCommandInteractionContext,
 } from "@itsmapleleaf/gatekeeper"
 import { log, LogLevel } from "./logging"
-import { Queue, Song } from "./Queue"
+import { Queue } from "./Queue"
+import { Song } from "./Song"
 import { tryGetPlayer } from "./playerHandler"
 
 /** Escape Discord formatting  */
-export function escFmting(text: string) {
-	return text.replace(/[<>:*_~#@]/g, "$&")
+export function escFmting(text: string | undefined) {
+	return text?.replace(/[<>:*_~#@]/g, "$&") ?? "_none_"
 }
 
 /** Check if two numbers are close to each other by a certain margin */
@@ -91,7 +92,7 @@ export function shuffle<T>([...array]: T[]): T[] {
 
 export function getQueueAddedMessage(...songs: Song[]) {
 	const songList = songs
-		.map((song) => `[${escFmting(song.title)}](<${song.source}>)`)
+		.map((song) => `[${escFmting(song.title)}](<${song.url}>)`)
 		.join(", ")
 
 	if (songList.length > 250) return `Queued ${songs.length} songs`

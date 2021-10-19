@@ -1,7 +1,5 @@
-## Working on
-- Different song sources
-	- Properly handling playlists 
-	- Add source to metadata
+## To work on next
+- Rework for /now-playing and /queue
 
 ## Bugs
 - Skipping last song in queue is broken

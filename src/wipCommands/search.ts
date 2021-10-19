@@ -7,8 +7,8 @@ import {
 	getQueueAddedMessage,
 	grayButton,
 } from "../helpers"
-import { resolveQueueRequest, Song } from "../Queue"
 import { tryGetPlayer } from "../playerHandler"
+import { Song } from "../Song"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
@@ -24,9 +24,9 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			ctx.defer()
 
 			const { query } = ctx.options
-			const songs = await resolveQueueRequest(query, ctx.user.id, "Query")
+			const songs = await Song.fromRequest(query, ctx.user.id)
 
-			if (songs.length < 1) {
+			if (false /* songs.length < 1 */) {
 				ctx.reply(() => `Couldn't find anything for \`${query}\``)
 				return
 			}

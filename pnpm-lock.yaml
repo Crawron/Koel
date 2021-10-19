@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@discordjs/voice': ^0.6.0
   '@itsmapleleaf/gatekeeper': ^0.5.0-4
+  '@types/ffmpeg-static': ^3.0.0
   '@types/jest': ^27.0.2
   '@types/node': ^16.9.1
   '@types/rimraf': ^3.0.2
@@ -19,6 +20,7 @@ specifiers:
   jest: ^27.2.1
   libsodium-wrappers: ^0.7.9
   mobx: ^6.3.3
+  node-fetch: ^3.0.0
   opusscript: ^0.0.8
   prism-media: ^1.3.2
   rimraf: ^3.0.2
@@ -42,6 +44,7 @@ dependencies:
   ffmpeg-static: 4.4.0
   libsodium-wrappers: 0.7.9
   mobx: 6.3.3
+  node-fetch: 3.0.0
   opusscript: 0.0.8
   prism-media: 1.3.2_1a472d751f6ae365e6cbffbe44f6adba
   ts-node: 10.2.1_c51a13cfa2c3195bf611f1652e33c9c1
@@ -52,6 +55,7 @@ dependencies:
   ytsr: 3.5.3
 
 devDependencies:
+  '@types/ffmpeg-static': 3.0.0
   '@types/jest': 27.0.2
   '@types/node': 16.9.1
   '@types/rimraf': 3.0.2
@@ -996,6 +1000,10 @@ packages:
       '@types/responselike': 1.0.0
     dev: false
 
+  /@types/ffmpeg-static/3.0.0:
+    resolution: {integrity: sha512-JTwV8fFQYUgp8VLUKLd8zHfhFOoTTszMlofnWINAZYWSd/iR2ZZHJsWanUhBG4+c8QPfWE8P7t3nAjSxTNjevQ==}
+    dev: true
+
   /@types/glob/7.1.4:
     resolution: {integrity: sha512-w+LsMxKyYQm347Otw+IfBXOv9UWVjpHpCDdbBMt8Kz/xbvCYNjP+0qPh91Km3iKfSRLBB0P7fAMf0KHrPu+MyA==}
     dependencies:
@@ -1872,6 +1880,11 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /data-uri-to-buffer/3.0.1:
+    resolution: {integrity: sha512-WboRycPNsVw3B3TL559F7kuBUM4d8CgMEvk6xEJlOp7OBPjt6G7z8WMWlD2rOFZLk6OYfFIUGsCOWzcQH9K2og==}
+    engines: {node: '>= 6'}
+    dev: false
+
   /data-urls/2.0.0:
     resolution: {integrity: sha512-X5eWTSXO/BJmpdIKCRuKUgSCgAN0OwliVK3yPKbwIWU1Tdw5BRajxlzMidvh+gwko9AfQ9zIj52pzF91Q3YAvQ==}
     engines: {node: '>=10'}
@@ -2357,6 +2370,13 @@ packages:
     dependencies:
       bser: 2.1.1
     dev: true
+
+  /fetch-blob/3.1.2:
+    resolution: {integrity: sha512-hunJbvy/6OLjCD0uuhLdp0mMPzP/yd2ssd1t2FCJsaA7wkWhpbp9xfuNVpv7Ll4jFhzp6T4LAupSiV9uOeg0VQ==}
+    engines: {node: ^12.20 || >= 14.13}
+    dependencies:
+      web-streams-polyfill: 3.1.1
+    dev: false
 
   /ffmpeg-static/4.4.0:
     resolution: {integrity: sha512-NIJHVPXlSsIK9pYvsTPh4ZlppauorpPLLeOaIG7VOXWQck4Fx4Qi7Ahe+j8mj8KZXhWwCg3Hx46JdWAIOWLcpg==}
@@ -3897,6 +3917,14 @@ packages:
     engines: {node: 4.x || >=6.0.0}
     dev: false
 
+  /node-fetch/3.0.0:
+    resolution: {integrity: sha512-bKMI+C7/T/SPU1lKnbQbwxptpCrG9ashG+VkytmXCPZyuM9jB6VU+hY0oi4lC8LxTtAeWdckNCTa3nrGsAdA3Q==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      data-uri-to-buffer: 3.0.1
+      fetch-blob: 3.1.2
+    dev: false
+
   /node-gyp-build/4.3.0:
     resolution: {integrity: sha512-iWjXZvmboq0ja1pUGULQBexmxq8CV4xBhX7VDOTbL7ZR4FOowwY/VOtRxBN/yKxmdGoIp4j5ysNT4u3S2pDQ3Q==}
     hasBin: true
@@ -5095,6 +5123,11 @@ packages:
     dependencies:
       makeerror: 1.0.11
     dev: true
+
+  /web-streams-polyfill/3.1.1:
+    resolution: {integrity: sha512-Czi3fG883e96T4DLEPRvufrF2ydhOOW1+1a6c3gNjH2aIh50DNFBdfwh2AKoOf1rXvpvavAoA11Qdq9+BKjE0Q==}
+    engines: {node: '>= 8'}
+    dev: false
 
   /webidl-conversions/5.0.0:
     resolution: {integrity: sha512-VlZwKPCkYKxQgeSbH5EyngOmRp7Ww7I9rQLERETtf5ofd9pGeswWiOtogpEO850jziPRarreGxn5QIiTqpb2wA==}

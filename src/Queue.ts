@@ -14,16 +14,17 @@ import ytpl from "ytpl"
 import ytsr from "ytsr"
 import { parseTime, shuffle } from "./helpers"
 import { log } from "./logging"
+import { Song } from "./Song"
 import { VoicePlayer } from "./VoicePlayer"
 
-export type Song = {
-	title: string
-	thumbnail: string
-	author: string
-	duration: number
-	source: string
-	requesterId: string
-}
+// export type Song = {
+// 	title: string
+// 	thumbnail: string
+// 	author: string
+// 	duration: number
+// 	source: string
+// 	requesterId: string
+// }
 
 export type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
 
@@ -97,131 +98,12 @@ export class Queue {
 		return this.coolPlayer.playedTime
 	}
 
-	private setPlayStream() {
+	private async setPlayStream() {
 		const song = this.currentSong
 		if (!song) return
 
 		log(`Set stream to... ${bold(song.title)}`, 0)
 
-		// https://github.com/fent/node-ytdl-core/issues/994#issuecomment-906581288
-		const audioReadable = raw(
-			song.source,
-			{
-				o: "-",
-				q: "",
-				f: "bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio",
-				r: "100K",
-			},
-			{ stdio: ["ignore", "pipe", "ignore"] }
-		)
-
-		this.coolPlayer.playStream(audioReadable.stdout as Readable)
-	}
-}
-
-function findBiggestThumbnailUrl([...thumbnails]: {
-	url: string | null
-	width: number
-}[]): string | undefined {
-	return (
-		thumbnails.sort((tnA, tnB) => tnA.width - tnB.width).shift()?.url ??
-		undefined
-	)
-}
-
-export async function searchVideoQuery(query: string, limit = 25) {
-	return (await ytsr(query, { limit })).items
-		.filter((item): item is ytsr.Video => item.type === "video")
-		.filter((video) => !video.isLive && !!video.duration)
-}
-
-export async function resolveQueueRequest(
-	request: string,
-	requester: Snowflake,
-	type: RequestType
-) {
-	const requestTypes: Record<RequestType, () => Promise<Song[]>> = {
-		Playlist: async () => {
-			const results = (await ytpl(request, { limit: 5000 })).items.filter(
-				(item) => !item.isLive
-			)
-			return results.map((r) => ({
-				title: r.title,
-				duration: parseTime(r.duration ?? "0"),
-				requesterId: requester,
-				thumbnail: r.bestThumbnail.url ?? "",
-				author: r.author.name,
-				source: r.shortUrl,
-			}))
-		},
-		Video: async () => {
-			try {
-				const result = (await ytdl.getBasicInfo(request)).videoDetails
-				return [
-					{
-						title: result.title,
-						duration: parseInt(result.lengthSeconds ?? "0") * 1000,
-						requesterId: requester,
-						thumbnail: findBiggestThumbnailUrl(result.thumbnails) ?? "",
-						author: result.author.name,
-						source: result.video_url,
-					},
-				]
-			} catch {
-				return []
-			}
-		},
-		PlaylistVideo: async () => {
-			try {
-				const result = (await ytdl.getBasicInfo(request)).videoDetails
-				return [
-					{
-						title: result.title,
-						duration: parseInt(result.lengthSeconds ?? "0") * 1000,
-						requesterId: requester,
-						thumbnail: findBiggestThumbnailUrl(result.thumbnails) ?? "",
-						author: result.author.name,
-						source: result.video_url,
-					},
-				]
-			} catch {
-				return []
-			}
-		},
-		Query: async () => {
-			const results = await searchVideoQuery(request)
-			if (results.length < 1) return []
-
-			return results.map((result) => ({
-				title: result.title,
-				duration: parseTime(result.duration ?? "0"),
-				requesterId: requester,
-				thumbnail: findBiggestThumbnailUrl(result.thumbnails) ?? "",
-				author: result.author?.name ?? "",
-				source: result.url,
-			}))
-		},
-	}
-
-	return requestTypes[type]()
-}
-
-export function checkRequestType(query: string): RequestType {
-	const url = safeNewHttpUrl(query)
-	if (!url) return "Query"
-	if (!["www.youtube.com", "youtu.be"].includes(url.host)) return "Query"
-	if (url.pathname === "/watch" && !!url.searchParams.get("list"))
-		return "PlaylistVideo"
-	if (url.pathname === "/playlist") return "Playlist"
-	if (ytdl.validateURL(query)) return "Video"
-	return "Query"
-}
-
-function safeNewHttpUrl(url: string) {
-	try {
-		const urlInstance = new URL(url)
-		if (/^https?:$/.test(urlInstance.protocol)) return urlInstance
-	} catch {
-		return
+		this.coolPlayer.playStream(await song.getOpusStream())
 	}
 }
