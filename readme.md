@@ -9,6 +9,7 @@
 
 ## Planned?
 - Better /queue and /now-playing
+- Proper error handling, instead of failing silently
 - /np and /q shorthands
 - Pausing
 - Seeking
