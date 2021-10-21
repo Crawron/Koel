@@ -1,6 +1,5 @@
 ## To work on next
-- /play-next
-- Moving songs in queue
+- Add `position` option to /play
 
 ## Bugs
 - Sources that only deliver video don't work
@@ -21,3 +20,6 @@
 - Playlist saving
 - Persistence
 - .env.example
+
+## Done :)
+- Moving songs in queue
