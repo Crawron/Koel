@@ -1,5 +1,6 @@
 ## To work on next
-- Rework for /now-playing and /queue
+- /play-next
+- Moving songs in queue
 
 ## Bugs
 - Sources that only deliver video don't work
@@ -14,7 +15,6 @@
 - /np and /q shorthands
 - Pausing
 - Seeking
-- Moving songs in queue
 - Chapters
 - Distributed Queue (song requests evenly split between requesters in queue)
 - Live Player Message
