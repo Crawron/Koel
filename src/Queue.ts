@@ -12,7 +12,7 @@ import { raw } from "youtube-dl-exec"
 import ytdl from "ytdl-core"
 import ytpl from "ytpl"
 import ytsr from "ytsr"
-import { parseTime, shuffle } from "./helpers"
+import { cap, move, parseTime, shuffle } from "./helpers"
 import { log } from "./logging"
 import { Song } from "./Song"
 import { VoicePlayer } from "./VoicePlayer"
@@ -84,6 +84,15 @@ export class Queue {
 
 	addToQueue(...songs: Song[]) {
 		this.list.push(...songs)
+	}
+
+	moveSong(from: number, to: number) {
+		from = cap(from, 0, this.upcomingSongs.length - 1)
+		to = cap(to, 0, this.upcomingSongs.length - 1)
+
+		const reSorted = move(this.upcomingSongs, from, to)
+		this.list.splice(this.queuePosition + 1)
+		this.list.push(...reSorted)
 	}
 
 	clearQueue() {

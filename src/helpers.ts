@@ -112,3 +112,12 @@ export function grayButton(
 ) {
 	return buttonComponent({ label, style: "SECONDARY", onClick: callback })
 }
+
+export function cap(value: number, min: number, max: number) {
+	return Math.min(Math.max(value, min), max)
+}
+
+export function move<T>([...arr]: T[], from: number, to: number) {
+	arr.splice(to, 0, ...arr.splice(from, 1))
+	return arr
+}
