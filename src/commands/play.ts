@@ -3,11 +3,9 @@ import {
 	SlashCommandOptionConfigMap,
 	Gatekeeper,
 } from "@itsmapleleaf/gatekeeper"
-import { RequestType } from "../Queue"
 import { tryGetPlayer } from "../playerHandler"
 import { accentButton, getQueueAddedMessage, grayButton } from "../helpers"
 import { requestYtdl, Song } from "../Song"
-import { log } from "../logging"
 import { checkRequestType } from "../sourceHandler"
 
 const playCommandOptions = {
@@ -19,54 +17,62 @@ const playCommandRun = async (
 		SlashCommandOptionConfigMap & typeof playCommandOptions
 	>
 ) => {
-	ctx.defer()
-
 	const player = tryGetPlayer(ctx)
 	if (!player) return
 
 	const { song: request } = ctx.options
 
-	let resolved = false
-	let loading = false
-	const songs: Song[] = []
+	const addedSongs: Song[] = []
 
-	async function resolveRequest() {
-		for await (const metadata of requestYtdl(request)) {
-			log({ queued: metadata.title }, 0)
+	let reqType = checkRequestType(request)
+
+	async function resolveRequest(url = request) {
+		for await (const metadata of requestYtdl(url)) {
 			const song = new Song(metadata, ctx.user.id)
 
-			songs.push(song)
+			addedSongs.push(song)
 			player?.addToQueue(song)
 		}
-
-		resolved = true
-		loading = false
-		// if (reply) reply.refresh()
 	}
 
-	const reqType = checkRequestType(request)
-	if (reqType !== "PlaylistVideo") await resolveRequest()
+	if (reqType != "PlaylistVideo") {
+		ctx.defer()
+		await resolveRequest()
+	}
+
+	let loading = false
 
 	const reply = ctx.reply(() => {
 		if (loading) return "One sec..."
-		if (!resolved)
+
+		if (reqType === "PlaylistVideo")
 			return [
-				"This is part of a playlist. Should I queue the **entire playlist** or **just this one song**? *(i disabled this for a bit for testing)*",
-				// accentButton("Entire playlist", async (ctx) => {
-				// 	ctx.defer()
-				// 	loading = true
-				// 	resolveRequest("Playlist")
-				// }),
-				// accentButton("Just this one song", async (ctx) => {
-				// 	ctx.defer()
-				// 	loading = true
-				// 	resolveRequest("Video")
-				// }),
-				// grayButton("Cancel", () => reply.delete()),
+				"This video belongs to a playlist, do you want me to queue **the whole playlist** or **just this one video**?",
+				accentButton("The whole playlist", async (buttonCtx) => {
+					buttonCtx.defer()
+					reqType = "Playlist"
+					loading = true
+					reply.refresh()
+					await resolveRequest(
+						request.replace(/v=[^&]+&/, "").replace("/watch", "/playlist")
+					)
+					loading = false
+					reply.refresh()
+				}),
+				accentButton("Just this one video", async (buttonCtx) => {
+					buttonCtx.defer()
+					reqType = "Video"
+					loading = true
+					reply.refresh()
+					await resolveRequest(request.replace(/&list=.*$/, ""))
+					loading = false
+					reply.refresh()
+				}),
+				grayButton("Cancel", async () => reply.delete()),
 			]
 
-		if (songs.length < 1) return "Failed to get any songs to add to queue"
-		return getQueueAddedMessage(...songs)
+		if (addedSongs.length < 1) return "Failed to get any songs to add to queue"
+		return getQueueAddedMessage(...addedSongs)
 	})
 }
 
