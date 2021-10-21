@@ -21,12 +21,6 @@ const commandMode = process.env.COMMANDMODE ?? "guild"
 	djsClient.on("ready", () => {
 		log(`Ready. Connected to ${bold(djsClient.user?.username)}`)
 		log(`Using ${bold(commandMode)} commands`)
-		log(
-			`Loaded Commands: ${gatekeeper
-				.getCommands()
-				.map((cmd) => bold(cmd.name))
-				.join(", ")}`
-		)
 	})
 
 	djsClient
