@@ -112,7 +112,7 @@ export async function* requestYtdl(request: string) {
 		"--default-search",
 		"ytsearch",
 		"-f",
-		"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio",
+		"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best[height<=360p]",
 		"-s",
 		"--dump-json",
 		request,

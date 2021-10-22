@@ -2,7 +2,6 @@
 - Add `position` option to /play
 
 ## Bugs
-- Sources that only deliver video don't work
 - Skipping last song in queue is broken
 - Missing audio files' duration (_maybe_ won't fix)
 - Off by one error in /queue (3 pages when there's 20 elements in 2)
@@ -23,3 +22,6 @@
 
 ## Done :)
 - Moving songs in queue
+
+## Fixed
+- Sources that only deliver video don't work
