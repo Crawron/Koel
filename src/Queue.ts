@@ -1,18 +1,7 @@
 import { bold } from "chalk"
-import {
-	VoiceChannel,
-	StageChannel,
-	Snowflake,
-	BaseGuildTextChannel,
-} from "discord.js"
+import { VoiceChannel, StageChannel, BaseGuildTextChannel } from "discord.js"
 import { autorun, IReactionDisposer, makeAutoObservable } from "mobx"
-import { Readable } from "stream"
-import { raw } from "youtube-dl-exec"
-
-import ytdl from "ytdl-core"
-import ytpl from "ytpl"
-import ytsr from "ytsr"
-import { cap, move, parseTime, shuffle } from "./helpers"
+import { cap, move, shuffle } from "./helpers"
 import { log } from "./logging"
 import { Song } from "./Song"
 import { VoicePlayer } from "./VoicePlayer"

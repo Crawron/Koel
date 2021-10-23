@@ -8,7 +8,6 @@ import {
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
 import { Readable } from "stream"
-import { log } from "./logging"
 import { Timer } from "./Timer"
 
 export class VoicePlayer {
