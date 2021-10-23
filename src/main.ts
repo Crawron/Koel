@@ -11,7 +11,7 @@ const djsClient = new Client({ intents: ["GUILD_VOICE_STATES", "GUILDS"] })
 const commandMode = process.env.COMMANDMODE ?? "guild"
 
 ;(async () => {
-	const gatekeeper = await Gatekeeper.create({
+	await Gatekeeper.create({
 		name: "Koel",
 		client: djsClient,
 		commandFolder: path.join(__dirname, "commands"),
