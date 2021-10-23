@@ -7,32 +7,23 @@ import {
 	VoiceConnection,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
-import {
-	autorun,
-	IReactionDisposer,
-	makeAutoObservable,
-	runInAction,
-} from "mobx"
 import { Readable } from "stream"
 import { log } from "./logging"
 import { Timer } from "./Timer"
 
 export class VoicePlayer {
 	private connection: VoiceConnection | null = null
-	private dispatchCallbacks: IReactionDisposer[] = []
 	private timer: Timer = new Timer()
 	private audioStream: Readable | null = null
 	private player: AudioPlayer
 
 	isConnected = false
-	playStatus: "Playing" | "Paused" | "Idle" = "Idle"
+	playStatus: "Playing" | "Paused" | "StandBy" = "StandBy"
 
 	constructor(
 		public channel: VoiceChannel | StageChannel,
 		public onIdle: () => void
 	) {
-		makeAutoObservable(this)
-
 		this.player = createAudioPlayer({
 			behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
 		})
@@ -41,40 +32,19 @@ export class VoicePlayer {
 
 		this.player.on("stateChange", (oldState, newState) => {
 			if (newState.status === "playing")
-				runInAction(() => (this.timer.time = newState.playbackDuration))
+				this.timer.time = newState.playbackDuration
 
 			if (oldState.status === "playing")
-				runInAction(() => (this.timer.time = oldState.playbackDuration))
+				this.timer.time = oldState.playbackDuration
 
 			if (newState.status === "idle") {
-				runInAction(() => {
-					this.audioStream = null
-					this.playStatus = "Idle"
-					this.onIdle()
-				})
+				this.audioStream = null
+				this.playStatus = "StandBy"
+				this.timer.pause()
+				this.timer.reset()
+				this.onIdle()
 			}
 		})
-
-		this.dispatchCallbacks.push(
-			autorun(() => {
-				log(this.playStatus, 0)
-
-				if (this.playStatus === "Idle") {
-					this.timer.pause()
-					this.timer.reset()
-				}
-
-				if (this.playStatus === "Playing") {
-					this.play()
-					this.timer.run()
-				}
-
-				if (this.playStatus === "Paused") {
-					this.pause()
-					this.timer.pause()
-				}
-			})
-		)
 	}
 
 	destroy() {
@@ -83,7 +53,6 @@ export class VoicePlayer {
 			this.connection.destroy()
 			this.connection = null
 		}
-		this.dispatchCallbacks.forEach((cb) => cb())
 	}
 
 	connect() {
@@ -104,35 +73,40 @@ export class VoicePlayer {
 		this.connection.subscribe(this.player)
 
 		this.connection.on("stateChange", (_, newState) => {
-			runInAction(() => (this.isConnected = newState.status === "ready"))
+			this.isConnected = newState.status === "ready"
 		})
 	}
 
-	playStream(stream: Readable) {
-		runInAction(() => {
-			this.audioStream = stream
-			if (this.playStatus === "Idle") this.playStatus = "Playing"
-		})
+	setStream(stream: Readable) {
+		this.audioStream = stream
+		if (this.playStatus === "StandBy") this.startStream()
 	}
 
-	play() {
+	startStream() {
 		if (!this.audioStream) return
 
-		if (this.player.state.status === "paused") {
-			this.player.unpause()
-			return
-		}
+		this.timer.run()
 
 		const resource = createAudioResource(this.audioStream)
 		this.player.play(resource)
+		this.playStatus = "Playing"
+	}
 
-		runInAction(() => (this.playStatus = "Playing"))
+	resume() {
+		if (this.playStatus !== "Paused") return
+
+		this.player.unpause()
+		this.timer.run()
+		this.playStatus = "Playing"
+		return
 	}
 
 	pause() {
-		this.player.pause()
+		if (this.playStatus === "Paused") return
 
-		runInAction(() => (this.playStatus = "Paused"))
+		this.player.pause()
+		this.timer.pause()
+		this.playStatus = "Paused"
 	}
 
 	get playedTime() {

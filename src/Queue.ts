@@ -30,7 +30,6 @@ export type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
 
 export class Queue {
 	list: Song[] = []
-	status: "Playing" | "Paused" | "StandBy" = "StandBy"
 	private _queuePosition = 0
 
 	private coolPlayer: VoicePlayer
@@ -74,6 +73,10 @@ export class Queue {
 		return this.list.slice(0, this.queuePosition)
 	}
 
+	get status() {
+		return this.coolPlayer.playStatus
+	}
+
 	get queuePosition() {
 		return this._queuePosition
 	}
@@ -82,8 +85,8 @@ export class Queue {
 		this._queuePosition = Math.max(Math.min(value, this.list.length), 0)
 	}
 
-	addToQueue(...songs: Song[]) {
-		this.list.push(...songs)
+	addToQueue(song: Song, position = this.list.length) {
+		this.list.splice(position, 0, song)
 	}
 
 	moveSong(from: number, to: number) {
@@ -103,6 +106,11 @@ export class Queue {
 		this.list.push(...shuffle(this.list.splice(this.queuePosition + 1)))
 	}
 
+	togglePlay() {
+		if (this.coolPlayer.playStatus === "Paused") this.coolPlayer.resume()
+		else if (this.coolPlayer.playStatus === "Playing") this.coolPlayer.pause()
+	}
+
 	get currentTime() {
 		return this.coolPlayer.playedTime
 	}
@@ -113,6 +121,6 @@ export class Queue {
 
 		log(`Set stream to... ${bold(song.title)}`, 0)
 
-		this.coolPlayer.playStream(await song.getOpusStream())
+		this.coolPlayer.setStream(await song.getOpusStream())
 	}
 }

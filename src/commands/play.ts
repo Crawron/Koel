@@ -10,6 +10,10 @@ import { checkRequestType } from "../sourceHandler"
 
 const playCommandOptions = {
 	song: { description: "Song to queue", type: "STRING", required: true },
+	position: {
+		description: "Where to add queue. If empty, add to the end",
+		type: "INTEGER",
+	},
 } as const
 
 const playCommandRun = async (
@@ -20,18 +24,25 @@ const playCommandRun = async (
 	const player = tryGetPlayer(ctx)
 	if (!player) return
 
-	const { song: request } = ctx.options
+	const { song: request, position } = ctx.options
 
 	const addedSongs: Song[] = []
 
 	let reqType = checkRequestType(request)
 
 	async function resolveRequest(url = request) {
+		if (!player) throw new Error("Missing player")
+		if (!url) throw new Error("Missing request url")
+
+		let queuingPosition =
+			(position ?? player.upcomingSongs.length) + player.queuePosition
+
 		for await (const metadata of requestYtdl(url)) {
 			const song = new Song(metadata, ctx.user.id)
 
 			addedSongs.push(song)
-			player?.addToQueue(song)
+			player.addToQueue(song, queuingPosition)
+			queuingPosition += 1
 		}
 	}
 

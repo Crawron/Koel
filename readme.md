@@ -1,5 +1,4 @@
 ## To work on next
-- Add `position` option to /play
 
 ## Bugs
 - Skipping last song in queue is broken
@@ -11,17 +10,19 @@
 - Better /queue and /now-playing
 - Proper error handling, instead of failing silently
 - /np and /q shorthands
-- Pausing
 - Seeking
 - Chapters
 - Distributed Queue (song requests evenly split between requesters in queue)
 - Live Player Message
 - Playlist saving
 - Persistence
+- Repeat one / Repeat playlist
 - .env.example
 
 ## Done :)
 - Moving songs in queue
+- Add `position` option to /play
+- Pausing
 
 ## Fixed
 - Sources that only deliver video don't work
