@@ -39,6 +39,7 @@ export class Queue {
 		this.disposeCallbacks.push(
 			autorun(() => {
 				if (this.currentSong != null) this.setPlayStream()
+				else this.coolPlayer.stop()
 			})
 		)
 	}

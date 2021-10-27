@@ -78,7 +78,12 @@ export class VoicePlayer {
 
 	setStream(stream: Readable) {
 		this.audioStream = stream
-		if (this.playStatus === "StandBy") this.startStream()
+		if (this.playStatus === "Paused") {
+			this.startStream()
+			this.pause()
+		} else {
+			this.startStream()
+		}
 	}
 
 	startStream() {
@@ -89,6 +94,14 @@ export class VoicePlayer {
 		const resource = createAudioResource(this.audioStream)
 		this.player.play(resource)
 		this.playStatus = "Playing"
+	}
+
+	stop() {
+		this.audioStream = null
+		this.player.stop()
+		this.timer.pause()
+		this.timer.reset()
+		this.playStatus = "StandBy"
 	}
 
 	resume() {

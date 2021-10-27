@@ -24,7 +24,8 @@ const playCommandRun = async (
 	const player = tryGetPlayer(ctx)
 	if (!player) return
 
-	const { song: request, position } = ctx.options
+	const { song: request, position = player.upcomingSongs.length + 1 } =
+		ctx.options
 
 	const addedSongs: Song[] = []
 
@@ -34,8 +35,7 @@ const playCommandRun = async (
 		if (!player) throw new Error("Missing player")
 		if (!url) throw new Error("Missing request url")
 
-		let queuingPosition =
-			(position ?? player.upcomingSongs.length) + player.queuePosition
+		let queuingPosition = position + player.queuePosition
 
 		for await (const metadata of requestYtdl(url)) {
 			const song = new Song(metadata, ctx.user.id)
