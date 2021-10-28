@@ -1,5 +1,5 @@
 import { embedComponent, Gatekeeper } from "@itsmapleleaf/gatekeeper"
-import { escFmting, fmtTime } from "../helpers"
+import { escFmting, fmtTime, isNotNullish } from "../helpers"
 import { tryGetPlayer } from "../playerHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
@@ -27,6 +27,12 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 					description: `**\`${fmtTime(player.currentTime)} / ${fmtTime(
 						currentSong.duration
 					)}\`** requested by <@${currentSong.requester}>`,
+					fields: [
+						currentSong.chapters && {
+							name: `${currentSong.chapters.length} Chapters`,
+							value: currentSong.getFormattedChapters(player.currentTime),
+						},
+					].filter(isNotNullish),
 				})
 			)
 		},

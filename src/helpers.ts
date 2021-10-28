@@ -124,3 +124,16 @@ export function move<T>([...arr]: T[], from: number, to: number) {
 	arr.splice(to, 0, ...arr.splice(from, 1))
 	return arr
 }
+
+export function focusOn<T>(arr: T[], pivot: number, radius: number) {
+	const start = Math.max(pivot - radius, 0)
+
+	return {
+		items: arr.slice(start, Math.min(pivot + radius + 1, arr.length)),
+		pivot: pivot - start,
+	}
+}
+
+export function isNotNullish<T>(thing: T | undefined | null): thing is T {
+	return thing != undefined
+}

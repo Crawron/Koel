@@ -3,6 +3,7 @@ import execa from "execa"
 import ytdl from "ytdl-core"
 import { Snowflake } from ".pnpm/discord-api-types@0.22.0/node_modules/discord-api-types"
 import { log } from "./logging"
+import { escFmting, fmtTime, focusOn } from "./helpers"
 
 /** *Part of* the metadata returned by youtube-dl using the `--dump-json` flag */
 type YtdlMetadata = {
@@ -12,6 +13,7 @@ type YtdlMetadata = {
 	webpage_url: string
 	extractor_key: string
 	duration?: number
+	chapters?: { title: string; start_time: number }[]
 	thumbnail?: string
 	uploader?: string
 } & Record<string, unknown>
@@ -41,6 +43,34 @@ export class Song {
 
 	get source() {
 		return this.meta.extractor_key
+	}
+
+	get chapters() {
+		return this.meta.chapters?.map((chapter) => ({
+			title: chapter.title,
+			startTime: chapter.start_time * 1000,
+		}))
+	}
+
+	getFormattedChapters(currentTime: number, radius = 1) {
+		if (!this.chapters) return "_none_"
+
+		const pivot =
+			this.chapters.length -
+			1 -
+			[...this.chapters].reverse().findIndex((chapter) => {
+				return chapter.startTime <= currentTime
+			})
+
+		const chapters = focusOn(this.chapters, pivot, radius)
+
+		return chapters.items
+			.map((chapter, i) =>
+				i === chapters.pivot
+					? `**\`${fmtTime(chapter.startTime)}\` ${escFmting(chapter.title)}**`
+					: `\`${fmtTime(chapter.startTime)}\` ${escFmting(chapter.title)}`
+			)
+			.join("\n")
 	}
 
 	async checkFreshness() {
