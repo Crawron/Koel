@@ -19,47 +19,6 @@ type YtdlMetadata = {
 export class Song {
 	constructor(private meta: YtdlMetadata, public requester: Snowflake) {}
 
-	static async fromRequest(url: string, requester: Snowflake) {
-		log({ url, requester }, 0)
-		if (ytdl.validateURL(url)) {
-			const {
-				videoDetails: details,
-				formats,
-				thumbnail_url,
-			} = await ytdl.getInfo(url)
-			const format = ytdl.chooseFormat(formats, {
-				quality: "highestaudio",
-			})
-			return new Song(
-				{
-					title: details.title,
-					webpage_url: details.video_url,
-					url: format.url,
-					duration: parseFloat(details.lengthSeconds) || 0,
-					extractor_key: "Youtube",
-					thumbnail: thumbnail_url,
-					uploader: details.author.name,
-				},
-				requester
-			)
-		}
-
-		// Not a Youtube URL, just throw it at youtube-dl
-		// (cause it works with other things for some reason)
-		const ytdlProcess = await execa("youtube-dl", [
-			"--default-search",
-			"ytsearch",
-			"-f",
-			"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio",
-			"-s",
-			"--dump-single-json",
-			url,
-		])
-
-		const videoMeta: YtdlMetadata = JSON.parse(ytdlProcess.stdout)
-		return new Song(videoMeta, requester)
-	}
-
 	get title() {
 		return this.meta.fulltitle ?? this.meta.title
 	}
