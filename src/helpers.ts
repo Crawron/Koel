@@ -37,7 +37,10 @@ export function fmtTime(time: number): string {
 	const hours = Math.floor(minutes / 60)
 
 	return (
-		(hours ? hours + ":" : "") + (minutes % 60) + ":" + twoDigits(seconds % 60)
+		(hours ? hours + ":" : "") +
+		(hours ? twoDigits(minutes % 60) : minutes % 60) +
+		":" +
+		twoDigits(seconds % 60)
 	)
 }
 
