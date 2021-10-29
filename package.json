@@ -24,7 +24,7 @@
 	},
 	"dependencies": {
 		"@discordjs/voice": "^0.6.0",
-		"@itsmapleleaf/gatekeeper": "^0.5.0-4",
+		"@itsmapleleaf/gatekeeper": "^0.6.1",
 		"@prisma/client": "^3.3.0",
 		"bufferutil": "^4.0.3",
 		"chalk": "^4.1.2",
