@@ -4,7 +4,7 @@ import {
 	Gatekeeper,
 } from "@itsmapleleaf/gatekeeper"
 import { escFmting, fmtTime, paginate } from "../helpers"
-import { tryGetPlayer } from "../playerHandler"
+import { tryGetQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
@@ -12,7 +12,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 		description: "List the queue",
 		options: { page: { type: "INTEGER", description: "Queue page" } },
 		run(ctx) {
-			const player = tryGetPlayer(ctx)
+			const player = tryGetQueue(ctx)
 			if (!player) return
 
 			const itemsPerPage = 10

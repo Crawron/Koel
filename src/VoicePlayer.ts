@@ -7,37 +7,42 @@ import {
 	VoiceConnection,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
-import { Readable } from "stream"
+import { log } from "./logging"
+import { Song } from "./Song"
 import { Timer } from "./Timer"
+
+export type VoicePlayerStatus = "Playing" | "Paused" | "StandBy"
 
 export class VoicePlayer {
 	private connection: VoiceConnection | null = null
 	private timer: Timer = new Timer()
-	private audioStream: Readable | null = null
+	private song: Song | null = null
 	private player: AudioPlayer
 
 	isConnected = false
-	playStatus: "Playing" | "Paused" | "StandBy" = "StandBy"
+	playStatus: VoicePlayerStatus = "StandBy"
 
-	constructor(
-		public channel: VoiceChannel | StageChannel,
-		public onIdle: () => void
-	) {
+	constructor(public onIdle: () => void) {
 		this.player = createAudioPlayer({
 			behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
 		})
 
-		this.connect()
-
 		this.player.on("stateChange", (oldState, newState) => {
-			if (newState.status === "playing")
+			// log(`State changed: ${oldState.status} -> ${newState.status}`, 0)
+			if (newState.status === "playing") {
 				this.timer.time = newState.playbackDuration
+			}
 
-			if (oldState.status === "playing")
+			if (oldState.status === "playing") {
 				this.timer.time = oldState.playbackDuration
+			}
+
+			if (oldState.status === "buffering" && this.playStatus === "Paused") {
+				this.pause()
+			}
 
 			if (newState.status === "idle") {
-				this.audioStream = null
+				this.song = null
 				this.playStatus = "StandBy"
 				this.timer.pause()
 				this.timer.reset()
@@ -54,17 +59,13 @@ export class VoicePlayer {
 		}
 	}
 
-	connect() {
-		if (this.connection) {
-			this.connection.disconnect()
-			this.connection.destroy()
-			this.connection = null
-		}
+	connect(channel: VoiceChannel | StageChannel) {
+		this.disconnect()
 
 		this.connection = joinVoiceChannel({
-			guildId: this.channel.guildId,
-			channelId: this.channel.id,
-			adapterCreator: this.channel.guild.voiceAdapterCreator,
+			guildId: channel.guildId,
+			channelId: channel.id,
+			adapterCreator: channel.guild.voiceAdapterCreator,
 			selfDeaf: false,
 			selfMute: false,
 		})
@@ -76,28 +77,34 @@ export class VoicePlayer {
 		})
 	}
 
-	setStream(stream: Readable) {
-		this.audioStream = stream
-		if (this.playStatus === "Paused") {
-			this.startStream()
-			this.pause()
-		} else {
-			this.startStream()
+	disconnect() {
+		if (this.connection) {
+			this.connection.disconnect()
+			this.connection.destroy()
+			this.connection = null
 		}
 	}
 
-	startStream() {
-		if (!this.audioStream) return
+	setSong(song: Song) {
+		this.song = song
+		if (this.playStatus === "Paused") this.pause()
+		this.startStream()
+	}
+
+	async startStream() {
+		log(`startStream ${this.playStatus}`, 0)
+		if (!this.song) return
 
 		this.timer.run()
 
-		const resource = createAudioResource(this.audioStream)
+		const resource = createAudioResource(await this.song.getOpusStream())
+
 		this.player.play(resource)
-		this.playStatus = "Playing"
+		if (this.playStatus === "StandBy") this.playStatus = "Playing"
 	}
 
 	stop() {
-		this.audioStream = null
+		this.song = null
 		this.player.stop()
 		this.timer.pause()
 		this.timer.reset()
@@ -105,23 +112,34 @@ export class VoicePlayer {
 	}
 
 	resume() {
-		if (this.playStatus !== "Paused") return
-
+		log(this.playStatus, 0)
 		this.player.unpause()
 		this.timer.run()
 		this.playStatus = "Playing"
-		return
 	}
 
 	pause() {
-		if (this.playStatus === "Paused") return
-
 		this.player.pause()
 		this.timer.pause()
 		this.playStatus = "Paused"
+		log(`pause ${this.playStatus}`, 0)
+	}
+
+	/** Incomplete */
+	seek(time: number) {
+		this.timer.time = time
+		// ToDo: Actually seek on the stream
 	}
 
 	get playedTime() {
 		return this.timer.time
+	}
+
+	get voiceChannelId() {
+		return this.connection?.joinConfig.channelId ?? undefined
+	}
+
+	get guildId() {
+		return this.connection?.joinConfig.guildId ?? undefined
 	}
 }

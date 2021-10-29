@@ -7,7 +7,7 @@ import {
 	getQueueAddedMessage,
 	grayButton,
 } from "../helpers"
-import { tryGetPlayer } from "../playerHandler"
+import { tryGetQueue } from "../queueHandler"
 import { Song } from "../Song"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
@@ -18,7 +18,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			query: { type: "STRING", description: "Search query", required: true },
 		},
 		async run(ctx) {
-			const player = tryGetPlayer(ctx)
+			const player = tryGetQueue(ctx)
 			if (!player) return
 
 			ctx.defer()

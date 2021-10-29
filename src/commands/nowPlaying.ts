@@ -1,13 +1,13 @@
 import { embedComponent, Gatekeeper } from "@itsmapleleaf/gatekeeper"
-import { escFmting, fmtTime, isNotNullish } from "../helpers"
-import { tryGetPlayer } from "../playerHandler"
+import { escFmting, fmtTime, isTruthy } from "../helpers"
+import { tryGetQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: "now-playing",
 		description: "Show currently playing song",
 		run(ctx) {
-			const player = tryGetPlayer(ctx)
+			const player = tryGetQueue(ctx)
 			if (!player) return
 
 			const currentSong = player.currentSong
@@ -28,11 +28,11 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 						currentSong.duration
 					)}\`** requested by <@${currentSong.requester}>`,
 					fields: [
-						currentSong.chapters && {
+						currentSong.chapters.length > 0 && {
 							name: `${currentSong.chapters.length} Chapters`,
 							value: currentSong.getFormattedChapters(player.currentTime),
 						},
-					].filter(isNotNullish),
+					].filter(isTruthy),
 				})
 			)
 		},

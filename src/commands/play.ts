@@ -3,7 +3,7 @@ import {
 	SlashCommandOptionConfigMap,
 	Gatekeeper,
 } from "@itsmapleleaf/gatekeeper"
-import { tryGetPlayer } from "../playerHandler"
+import { tryGetQueue } from "../queueHandler"
 import { accentButton, getQueueAddedMessage, grayButton } from "../helpers"
 import { requestYtdl, Song } from "../Song"
 import { checkRequestType } from "../sourceHandler"
@@ -21,7 +21,7 @@ const playCommandRun = async (
 		SlashCommandOptionConfigMap & typeof playCommandOptions
 	>
 ) => {
-	const player = tryGetPlayer(ctx)
+	const player = tryGetQueue(ctx)
 	if (!player) return
 
 	const { song: request, position = player.upcomingSongs.length + 1 } =

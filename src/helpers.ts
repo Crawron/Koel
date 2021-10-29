@@ -6,7 +6,7 @@ import {
 import { log, LogLevel } from "./logging"
 import { Queue } from "./Queue"
 import { Song } from "./Song"
-import { tryGetPlayer } from "./playerHandler"
+import { tryGetQueue } from "./queueHandler"
 
 /** Escape Discord formatting  */
 export function escFmting(text: string | undefined) {
@@ -65,7 +65,7 @@ export const createPlayerCommandRun =
 		callback: (ctx: T, player: Queue) => void | Promise<unknown>
 	) =>
 	async (ctx: T) => {
-		const player = tryGetPlayer(ctx)
+		const player = tryGetQueue(ctx)
 		if (!player) return
 
 		try {
@@ -134,6 +134,8 @@ export function focusOn<T>(arr: T[], pivot: number, radius: number) {
 	}
 }
 
-export function isNotNullish<T>(thing: T | undefined | null): thing is T {
-	return thing != undefined
+export function isTruthy<T>(
+	thing: T | undefined | null | 0 | "" | false
+): thing is T {
+	return !!thing
 }

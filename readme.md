@@ -1,5 +1,6 @@
 ## To work on next
 
+- Persistence
 - Better /now-playing
 
 ## Bugs
@@ -17,9 +18,7 @@
 - Distributed Queue (song requests evenly split between requesters in queue)
 - Live Player Message
 - Playlist saving
-- Persistence
 - Repeat one / Repeat playlist
-- .env.example
 
 ## Done :)
 

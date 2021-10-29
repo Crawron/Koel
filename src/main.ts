@@ -1,12 +1,11 @@
 import "dotenv/config"
 
-import { Client } from "discord.js"
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
 import { log, LogLevel } from "./logging"
 import { bold } from "chalk"
 import path from "path/posix"
-
-const djsClient = new Client({ intents: ["GUILD_VOICE_STATES", "GUILDS"] })
+import { djsClient } from "./clients"
+import { loadQueues } from "./queueHandler"
 
 const commandMode = process.env.COMMANDMODE ?? "guild"
 
@@ -18,9 +17,12 @@ const commandMode = process.env.COMMANDMODE ?? "guild"
 		logging: true,
 	})
 
-	djsClient.on("ready", () => {
+	djsClient.on("ready", async () => {
 		log(`Ready. Connected to ${bold(djsClient.user?.username)}`)
 		log(`Using ${bold(commandMode)} commands`)
+
+		await loadQueues()
+		log(`Loaded queues`)
 	})
 
 	djsClient

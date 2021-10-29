@@ -1,52 +1,100 @@
+import { ChapterData, QueueData, SongData } from "@prisma/client"
 import { bold } from "chalk"
-import { VoiceChannel, StageChannel, BaseGuildTextChannel } from "discord.js"
-import { autorun, IReactionDisposer, makeAutoObservable } from "mobx"
+import { VoiceChannel, StageChannel, Snowflake } from "discord.js"
+import {
+	autorun,
+	IReactionDisposer,
+	Lambda,
+	makeAutoObservable,
+	observe,
+	reaction,
+	runInAction,
+} from "mobx"
+import { djsClient } from "./clients"
 import { cap, move, shuffle } from "./helpers"
 import { log } from "./logging"
+import { saveQueue } from "./queueHandler"
 import { Song } from "./Song"
 import { VoicePlayer } from "./VoicePlayer"
-
-// export type Song = {
-// 	title: string
-// 	thumbnail: string
-// 	author: string
-// 	duration: number
-// 	source: string
-// 	requesterId: string
-// }
 
 export type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
 
 export class Queue {
 	list: Song[] = []
+	player: VoicePlayer
 	private _queuePosition = 0
 
-	private coolPlayer: VoicePlayer
+	private disposeCallbacks: (IReactionDisposer | Lambda)[] = []
 
-	private disposeCallbacks: IReactionDisposer[] = []
-
-	constructor(
-		public voiceChannel: VoiceChannel | StageChannel,
-		public textChannel: BaseGuildTextChannel
-	) {
+	constructor(public guildId: Snowflake) {
 		makeAutoObservable(this)
 
-		this.coolPlayer = new VoicePlayer(
-			voiceChannel,
-			() => (this.queuePosition += 1)
-		)
+		this.player = new VoicePlayer(() => (this.queuePosition += 1))
 
 		this.disposeCallbacks.push(
+			reaction(
+				() => [this.list, this.queuePosition, this.status],
+				() => {
+					log(`Saved queue for ${this.guildId}`, 0)
+					saveQueue(this)
+				}
+			),
 			autorun(() => {
+				log(`${this.player.playStatus}`, 0)
 				if (this.currentSong != null) this.setPlayStream()
-				else this.coolPlayer.stop()
+				else this.player.stop()
 			})
 		)
 	}
 
+	static fromData(
+		data: QueueData & { list: (SongData & { chapters: ChapterData[] })[] }
+	) {
+		const queue = new Queue(data.id)
+		if (data.playerStatus === "Paused") queue.player.pause()
+
+		if (data.voiceChannel) {
+			const vc = djsClient.channels.cache.get(data.voiceChannel) as
+				| VoiceChannel
+				| undefined
+
+			if (vc) queue.player.connect(vc)
+		}
+
+		runInAction(() => {
+			queue.list = data.list.map((song) => Song.fromData(song))
+			queue.queuePosition = data.queuePosition
+		})
+
+		return queue
+	}
+
+	toData(): QueueData & { list: (SongData & { chapters: ChapterData[] })[] } {
+		const data: QueueData & {
+			list: (SongData & { chapters: ChapterData[] })[]
+		} = {
+			id: this.guildId,
+			playedTime: this.player.playedTime,
+			playerStatus: this.player.playStatus,
+			list: this.list.map((song, i) => song.toData(i, this.guildId)),
+			queuePosition: this.queuePosition,
+			voiceChannel: this.player.voiceChannelId ?? null,
+		}
+
+		return data
+	}
+
 	destroy() {
-		this.coolPlayer.destroy()
+		this.player.destroy()
 		this.disposeCallbacks.forEach((cb) => cb())
+	}
+
+	connect(voiceChannel: VoiceChannel | StageChannel) {
+		this.player.connect(voiceChannel)
+	}
+
+	get isConnected() {
+		return this.player.isConnected
 	}
 
 	get upcomingSongs() {
@@ -64,7 +112,7 @@ export class Queue {
 	}
 
 	get status() {
-		return this.coolPlayer.playStatus
+		return this.player.playStatus
 	}
 
 	get queuePosition() {
@@ -97,20 +145,19 @@ export class Queue {
 	}
 
 	togglePlay() {
-		if (this.coolPlayer.playStatus === "Paused") this.coolPlayer.resume()
-		else if (this.coolPlayer.playStatus === "Playing") this.coolPlayer.pause()
+		if (this.player.playStatus === "Paused") this.player.resume()
+		else if (this.player.playStatus === "Playing") this.player.pause()
 	}
 
 	get currentTime() {
-		return this.coolPlayer.playedTime
+		return this.player.playedTime
 	}
 
 	private async setPlayStream() {
 		const song = this.currentSong
 		if (!song) return
+		this.player.setSong(song)
 
 		log(`Set stream to... ${bold(song.title)}`, 0)
-
-		this.coolPlayer.setStream(await song.getOpusStream())
 	}
 }

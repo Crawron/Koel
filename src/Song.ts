@@ -4,6 +4,7 @@ import ytdl from "ytdl-core"
 import { Snowflake } from ".pnpm/discord-api-types@0.22.0/node_modules/discord-api-types"
 import { log } from "./logging"
 import { escFmting, fmtTime, focusOn } from "./helpers"
+import { ChapterData, SongData } from "@prisma/client"
 
 /** *Part of* the metadata returned by youtube-dl using the `--dump-json` flag */
 type YtdlMetadata = {
@@ -20,6 +21,51 @@ type YtdlMetadata = {
 
 export class Song {
 	constructor(private meta: YtdlMetadata, public requester: Snowflake) {}
+
+	static fromData(data: SongData & { chapters: ChapterData[] }): Song {
+		return new Song(
+			{
+				title: data.title,
+				url: data.mediaUrl,
+				webpage_url: data.url,
+				extractor_key: data.source,
+				duration: data.duration / 1000,
+				chapters: data.chapters
+					.map((chapter) => ({
+						title: chapter.title,
+						start_time: chapter.startTime,
+					}))
+					.sort((a, b) => a.start_time - b.start_time),
+				thumbnail: data.thumbnail ?? undefined,
+				uploader: data.uploader ?? undefined,
+			},
+			data.requester
+		)
+	}
+
+	toData(
+		position: number,
+		queue: Snowflake
+	): SongData & { chapters: ChapterData[] } {
+		return {
+			queueId: queue,
+			title: this.title,
+			url: this.url,
+			mediaUrl: this.meta.url,
+			source: this.source,
+			duration: this.duration,
+			thumbnail: this.thumbnail ?? null,
+			uploader: this.uploader ?? null,
+			chapters: this.chapters.map((ch, i) => ({
+				id: `${this.url} ${i}`,
+				title: ch.title,
+				startTime: ch.startTime,
+				songId: this.url,
+				songDataUrl: this.url,
+			})),
+			requester: this.requester,
+		}
+	}
 
 	get title() {
 		return this.meta.fulltitle ?? this.meta.title
@@ -46,10 +92,12 @@ export class Song {
 	}
 
 	get chapters() {
-		return this.meta.chapters?.map((chapter) => ({
-			title: chapter.title,
-			startTime: chapter.start_time * 1000,
-		}))
+		return (
+			this.meta.chapters?.map((chapter) => ({
+				title: chapter.title,
+				startTime: chapter.start_time * 1000,
+			})) ?? []
+		)
 	}
 
 	getFormattedChapters(currentTime: number, radius = 1) {
