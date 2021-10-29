@@ -1,7 +1,6 @@
 ## To work on next
 
-- Persistence
-- Better /now-playing
+- Missing /join command to join or change voice channel
 
 ## Bugs
 
@@ -12,6 +11,7 @@
 ## Planned?
 
 - Better /queue
+- Better /now-playing
 - Proper error handling, instead of failing silently
 - /np and /q shorthands
 - Seeking
@@ -26,6 +26,7 @@
 - Add `position` option to /play
 - Pausing
 - Chapters
+- Persistence-ish
 
 ## Fixed
 
