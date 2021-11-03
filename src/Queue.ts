@@ -1,4 +1,3 @@
-import { ChapterData, QueueData, SongData } from "@prisma/client"
 import { bold } from "chalk"
 import { VoiceChannel, StageChannel, Snowflake } from "discord.js"
 import {
@@ -6,15 +5,14 @@ import {
 	IReactionDisposer,
 	Lambda,
 	makeAutoObservable,
-	observe,
 	reaction,
 	runInAction,
 } from "mobx"
 import { djsClient } from "./clients"
 import { cap, move, shuffle } from "./helpers"
 import { log } from "./logging"
-import { saveQueue } from "./queueHandler"
 import { Song } from "./Song"
+import { QueueData, saveQueue } from "./storage"
 import { VoicePlayer } from "./VoicePlayer"
 
 export type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
@@ -33,23 +31,23 @@ export class Queue {
 
 		this.disposeCallbacks.push(
 			reaction(
-				() => [this.list, this.queuePosition, this.status],
-				() => {
+				() => this.toData(),
+				async (data) => {
 					log(`Saved queue for ${this.guildId}`, 0)
-					saveQueue(this)
+					await saveQueue(data)
 				}
 			),
-			autorun(() => {
-				log(`${this.player.playStatus}`, 0)
-				if (this.currentSong != null) this.setPlayStream()
-				else this.player.stop()
-			})
+			reaction(
+				() => this.currentSong,
+				(song) => {
+					if (song != null) this.setPlayStream()
+					else this.player.stop()
+				}
+			)
 		)
 	}
 
-	static fromData(
-		data: QueueData & { list: (SongData & { chapters: ChapterData[] })[] }
-	) {
+	static fromData(data: QueueData) {
 		const queue = new Queue(data.id)
 		if (data.playerStatus === "Paused") queue.player.pause()
 
@@ -69,16 +67,14 @@ export class Queue {
 		return queue
 	}
 
-	toData(): QueueData & { list: (SongData & { chapters: ChapterData[] })[] } {
-		const data: QueueData & {
-			list: (SongData & { chapters: ChapterData[] })[]
-		} = {
+	toData(): QueueData {
+		const data: QueueData = {
 			id: this.guildId,
 			playedTime: this.player.playedTime,
 			playerStatus: this.player.playStatus,
-			list: this.list.map((song, i) => song.toData(i, this.guildId)),
+			list: this.list.map((song) => song.toData()),
 			queuePosition: this.queuePosition,
-			voiceChannel: this.player.voiceChannelId ?? null,
+			voiceChannel: this.player.voiceChannelId,
 		}
 
 		return data
@@ -136,8 +132,9 @@ export class Queue {
 		this.list.push(...reSorted)
 	}
 
+	/** Returns deleted songs */
 	clearQueue() {
-		this.list.splice(this._queuePosition + 1)
+		return this.list.splice(this._queuePosition + 1)
 	}
 
 	shuffle() {

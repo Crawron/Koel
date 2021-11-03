@@ -1,10 +1,8 @@
 // import fetch from "node-fetch"
 import execa from "execa"
-import ytdl from "ytdl-core"
-import { Snowflake } from ".pnpm/discord-api-types@0.22.0/node_modules/discord-api-types"
-import { log } from "./logging"
+import { Snowflake } from "discord.js"
 import { escFmting, fmtTime, focusOn } from "./helpers"
-import { ChapterData, SongData } from "@prisma/client"
+import { SongData } from "./storage"
 
 /** *Part of* the metadata returned by youtube-dl using the `--dump-json` flag */
 type YtdlMetadata = {
@@ -22,7 +20,7 @@ type YtdlMetadata = {
 export class Song {
 	constructor(private meta: YtdlMetadata, public requester: Snowflake) {}
 
-	static fromData(data: SongData & { chapters: ChapterData[] }): Song {
+	static fromData(data: SongData): Song {
 		return new Song(
 			{
 				title: data.title,
@@ -43,28 +41,43 @@ export class Song {
 		)
 	}
 
-	toData(
-		position: number,
-		queue: Snowflake
-	): SongData & { chapters: ChapterData[] } {
-		return {
-			queueId: queue,
+	static async *requestYtdl(request: string) {
+		const ytdlProcess = execa("youtube-dl", [
+			"--default-search",
+			"ytsearch",
+			"-f",
+			"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best[height<=480p]/worst",
+			"-s",
+			"--dump-json",
+			request,
+		])
+
+		if (!ytdlProcess.stdout)
+			throw new Error("youtube-dl process stdout is null")
+
+		for await (const data of ytdlProcess.stdout) {
+			const json = JSON.parse(String(data))
+			yield json as YtdlMetadata
+		}
+	}
+
+	toData(): SongData {
+		const data: SongData = {
 			title: this.title,
 			url: this.url,
 			mediaUrl: this.meta.url,
 			source: this.source,
 			duration: this.duration,
-			thumbnail: this.thumbnail ?? null,
-			uploader: this.uploader ?? null,
-			chapters: this.chapters.map((ch, i) => ({
-				id: `${this.url} ${i}`,
+			thumbnail: this.thumbnail,
+			uploader: this.uploader,
+			chapters: this.chapters.map((ch) => ({
 				title: ch.title,
 				startTime: ch.startTime,
-				songId: this.url,
-				songDataUrl: this.url,
 			})),
 			requester: this.requester,
 		}
+
+		return data
 	}
 
 	get title() {
@@ -141,24 +154,5 @@ export class Song {
 
 		if (!process.stdout) throw Error("ffmpeg stdout is somehow null")
 		return process.stdout
-	}
-}
-
-export async function* requestYtdl(request: string) {
-	const ytdlProcess = execa("youtube-dl", [
-		"--default-search",
-		"ytsearch",
-		"-f",
-		"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best[height<=480p]/worst",
-		"-s",
-		"--dump-json",
-		request,
-	])
-
-	if (!ytdlProcess.stdout) throw new Error("youtube-dl process stdout is null")
-
-	for await (const data of ytdlProcess.stdout) {
-		const json = JSON.parse(String(data))
-		yield json as YtdlMetadata
 	}
 }

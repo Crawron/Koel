@@ -7,6 +7,7 @@ import {
 	VoiceConnection,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
+import { makeAutoObservable } from "mobx"
 import { log } from "./logging"
 import { Song } from "./Song"
 import { Timer } from "./Timer"
@@ -23,6 +24,8 @@ export class VoicePlayer {
 	playStatus: VoicePlayerStatus = "StandBy"
 
 	constructor(public onIdle: () => void) {
+		makeAutoObservable(this)
+
 		this.player = createAudioPlayer({
 			behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
 		})

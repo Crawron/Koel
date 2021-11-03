@@ -1,6 +1,7 @@
 ## To work on next
 
 - Missing /join command to join or change voice channel
+- /history
 
 ## Bugs
 

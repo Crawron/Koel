@@ -5,7 +5,7 @@ import {
 } from "@itsmapleleaf/gatekeeper"
 import { tryGetQueue } from "../queueHandler"
 import { accentButton, getQueueAddedMessage, grayButton } from "../helpers"
-import { requestYtdl, Song } from "../Song"
+import { Song } from "../Song"
 import { checkRequestType } from "../sourceHandler"
 
 const playCommandOptions = {
@@ -37,7 +37,7 @@ const playCommandRun = async (
 
 		let queuingPosition = position + player.queuePosition
 
-		for await (const metadata of requestYtdl(url)) {
+		for await (const metadata of Song.requestYtdl(url)) {
 			const song = new Song(metadata, ctx.user.id)
 
 			addedSongs.push(song)

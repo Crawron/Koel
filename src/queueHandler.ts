@@ -1,43 +1,14 @@
 import { SlashCommandInteractionContext } from "@itsmapleleaf/gatekeeper"
 import { Snowflake, StageChannel, VoiceChannel } from "discord.js"
-import { prismaDb } from "./clients"
 import { Queue } from "./Queue"
+import { QueueData } from "./storage"
 
 const activeQueues = new Map<Snowflake, Queue>()
 
-export async function loadQueues() {
-	const queues = await prismaDb.queueData.findMany({
-		include: { list: { include: { chapters: true } } },
-	})
-
-	for (const q of queues) activeQueues.set(q.id, Queue.fromData(q))
-}
-
-export async function saveQueue(queue: Queue) {
-	const { list, ...queueData } = queue.toData()
-
-	await prismaDb.queueData.upsert({
-		where: { id: queueData.id },
-		create: queueData,
-		update: queueData,
-	})
-
-	for (const s of list) {
-		const { chapters, ...songData } = s
-
-		await prismaDb.songData.upsert({
-			where: { url: songData.url },
-			create: songData,
-			update: songData,
-		})
-
-		for (const chapter of chapters) {
-			await prismaDb.chapterData.upsert({
-				where: { id: chapter.id },
-				create: chapter,
-				update: chapter,
-			})
-		}
+export function loadQueues(queues: QueueData[]) {
+	for (const queue of queues) {
+		const newQueue = Queue.fromData(queue)
+		activeQueues.set(newQueue.guildId, newQueue)
 	}
 }
 

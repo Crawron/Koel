@@ -6,12 +6,12 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 		name: "clear",
 		description: "Clear the queue",
 		run(ctx) {
-			const player = tryGetQueue(ctx)
-			if (!player) return
+			const queue = tryGetQueue(ctx)
+			if (!queue) return
 
-			player.clearQueue()
+			const deleted = queue.clearQueue()
 
-			ctx.reply(() => "_Cleared_ :thumbsup:")
+			ctx.reply(() => `Cleared ${deleted} songs from the queue`)
 		},
 	})
 }

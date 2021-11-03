@@ -28,10 +28,10 @@ export function parseTime(time: string) {
 	return ((hours * 60 + minutes) * 60 + seconds) * 1000
 }
 
+export const twoDigits = (n: number) => n.toString().padStart(2, "0")
+
 /** Format milliseconds to human time */
 export function fmtTime(time: number): string {
-	const twoDigits = (n: number) => n.toString().padStart(2, "0")
-
 	const seconds = Math.floor(time / 1000)
 	const minutes = Math.floor(seconds / 60)
 	const hours = Math.floor(minutes / 60)
