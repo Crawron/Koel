@@ -18,6 +18,7 @@
 	},
 	"scripts": {
 		"dev": "node -r ts-node/register --inspect=5858 src/main.ts",
+		"start": "node build/main.js",
 		"test": "jest",
 		"getytdl": "node scripts/getYtdl.mjs",
 		"build": "tsc"
