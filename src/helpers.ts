@@ -139,3 +139,11 @@ export function isTruthy<T>(
 ): thing is T {
 	return !!thing
 }
+
+export function safeJsonParse<T>(json: string): T | undefined {
+	try {
+		return JSON.parse(json)
+	} catch {
+		return undefined
+	}
+}
