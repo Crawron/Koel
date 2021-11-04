@@ -1,7 +1,6 @@
 import { bold } from "chalk"
 import { VoiceChannel, StageChannel, Snowflake } from "discord.js"
 import {
-	autorun,
 	IReactionDisposer,
 	Lambda,
 	makeAutoObservable,
