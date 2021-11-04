@@ -1,7 +1,7 @@
 ## To work on next
 
+- Debounce persistance storage saving
 - Missing /join command to join or change voice channel
-- /history
 
 ## Bugs
 
@@ -28,6 +28,7 @@
 - Pausing
 - Chapters
 - Persistence-ish
+- /history
 
 ## Fixed
 
@@ -35,3 +36,4 @@
 - /skip is just completely broken
 - Skipping last song in queue is broken
 - Sources that only deliver video don't work
+- Sometimes attempt to parse incomplete ytdl output
