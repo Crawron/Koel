@@ -1,7 +1,7 @@
 // import fetch from "node-fetch"
 import execa from "execa"
 import { Snowflake } from "discord.js"
-import { escFmting, fmtTime, focusOn } from "./helpers"
+import { escFmting, fmtTime, focusOn, safeJsonParse } from "./helpers"
 import { SongData } from "./storage"
 
 /** *Part of* the metadata returned by youtube-dl using the `--dump-json` flag */
@@ -55,9 +55,17 @@ export class Song {
 		if (!ytdlProcess.stdout)
 			throw new Error("youtube-dl process stdout is null")
 
+		let jsonString = Buffer.from([])
+
 		for await (const data of ytdlProcess.stdout) {
-			const json = JSON.parse(String(data))
-			yield json as YtdlMetadata
+			jsonString = Buffer.concat([jsonString, data])
+
+			const validJson = safeJsonParse<YtdlMetadata>(jsonString.toString())
+
+			if (validJson) {
+				jsonString = Buffer.from([])
+				yield validJson
+			}
 		}
 	}
 
