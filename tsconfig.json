@@ -6,7 +6,6 @@
 		"strictFunctionTypes": true,
 		"sourceMap": true,
 		"strict": true,
-		"incremental": true,
 		"noUncheckedIndexedAccess": true,
 		"esModuleInterop": true,
 		"useDefineForClassFields": true,
