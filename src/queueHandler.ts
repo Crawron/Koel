@@ -21,20 +21,15 @@ export function tryGetQueue(
 		return
 	}
 
+	const queue = activeQueues.get(ctx.guild.id)
+	if (queue) return queue
+
 	if (!ctx.member?.voice.channel) {
 		ctx.reply(() => "You must be in a voice channel to use this command")
 		return
 	}
 
-	if (!ctx.channel) {
-		ctx.reply(
-			() =>
-				"You seem to have not called this command from a text channel. I don't know how this is possible, and I don't think this reply will be seen by any eyes outside of the source code, but I *am* forced to make this check and reply regardless. Have a good one"
-		)
-		return
-	}
-
-	return activeQueues.get(ctx.guild.id) ?? createQueue(ctx.member.voice.channel)
+	return createQueue(ctx.member.voice.channel)
 }
 
 export function destroyPlayer(guildId: Snowflake): boolean {
