@@ -118,6 +118,10 @@ export class Queue {
 		this._queuePosition = Math.max(Math.min(value, this.list.length), 0)
 	}
 
+	joinVoiceChannel(channel: VoiceChannel | StageChannel) {
+		this.player.connect(channel)
+	}
+
 	addToQueue(song: Song, position = this.list.length) {
 		this.list.splice(position, 0, song)
 	}

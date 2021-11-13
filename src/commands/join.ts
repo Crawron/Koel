@@ -9,6 +9,12 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			const player = tryGetQueue(ctx)
 			if (!player) return
 
+			if (!ctx.member?.voice.channel) {
+				ctx.reply(() => "You must be in a voice channel to join")
+				return
+			}
+
+			player.joinVoiceChannel(ctx.member.voice.channel)
 			ctx.reply(() => "Joined :thumbsup:")
 		},
 	})
