@@ -24,7 +24,7 @@ export class VoicePlayer {
 	playStatus: VoicePlayerStatus = "StandBy"
 
 	constructor(public onIdle: () => void) {
-		makeAutoObservable(this)
+		makeAutoObservable(this, { playedTime: false })
 
 		this.player = createAudioPlayer({
 			behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
