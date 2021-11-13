@@ -4,6 +4,7 @@ import { Snowflake } from "discord.js"
 import FastGlob from "fast-glob"
 import { unlink } from "fs/promises"
 import { log } from "./logging"
+import { debounce } from "./helpers"
 
 export type SongData = {
 	title: string
@@ -43,11 +44,14 @@ export async function getQueueStorage() {
 	return queueDataStorage
 }
 
-export async function saveQueue(queue: QueueData) {
+async function saveQueueBounced(queue: QueueData) {
 	await writeFile(`storage/queues/${queue.id}.json`, queue, {
 		spaces: 2,
 	})
+	log(`Saved queue ${queue.id}`, 0)
 }
+
+export const saveQueue = debounce(1000, saveQueueBounced)
 
 export async function deleteQueue(queue: QueueData) {
 	await unlink(`storage/queues/${queue.id}.json`)

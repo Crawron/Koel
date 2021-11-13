@@ -147,3 +147,15 @@ export function safeJsonParse<T>(json: string): T | undefined {
 		return undefined
 	}
 }
+
+export function debounce<Args extends unknown[]>(
+	timeout: number,
+	callback: (...args: Args) => void
+) {
+	let id: NodeJS.Timer
+
+	return (...args: Args) => {
+		if (id) clearTimeout(id)
+		id = setTimeout(() => callback(...args), timeout)
+	}
+}

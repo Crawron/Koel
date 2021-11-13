@@ -1,7 +1,5 @@
 ## To work on next
 
-- Debounce persistence storage saving
-
 ## Bugs
 
 - Not properly saving last connected vc for persistence
@@ -39,3 +37,4 @@
 - Sources that only deliver video don't work
 - Sometimes attempt to parse incomplete ytdl output
 - Missing /join command to join or change voice channel
+- Debounce persistence storage saving

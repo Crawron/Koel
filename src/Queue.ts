@@ -31,10 +31,7 @@ export class Queue {
 		this.disposeCallbacks.push(
 			reaction(
 				() => this.toData(),
-				async (data) => {
-					log(`Saved queue for ${this.guildId}`, 0)
-					await saveQueue(data)
-				}
+				(data) => saveQueue(data)
 			),
 			reaction(
 				() => this.currentSong,
