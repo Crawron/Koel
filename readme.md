@@ -1,7 +1,6 @@
 ## To work on next
 
-- Debounce persistance storage saving
-- Missing /join command to join or change voice channel
+- Debounce persistence storage saving
 
 ## Bugs
 
@@ -39,3 +38,4 @@
 - Skipping last song in queue is broken
 - Sources that only deliver video don't work
 - Sometimes attempt to parse incomplete ytdl output
+- Missing /join command to join or change voice channel
