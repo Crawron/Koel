@@ -34,6 +34,12 @@ export class Queue {
 				(data) => saveQueue(data)
 			),
 			reaction(
+				() => this.player.isConnected,
+				() => {
+					saveQueue(this.toData())
+				}
+			),
+			reaction(
 				() => this.currentSong,
 				(song) => {
 					if (song != null) this.setPlayStream()
