@@ -16,24 +16,22 @@ import { Song } from "./Song"
 
 function formatSong(
 	song: Song,
-	options?: {
-		index?: number
-		elapsedTime?: number
-		bold?: boolean
-		link?: boolean
-		uploader?: boolean
-		requester?: boolean
-	}
-): string {
-	const {
+	{
 		index,
 		elapsedTime,
 		link,
 		bold,
 		requester = true,
 		uploader,
-	} = options ?? {}
-
+	}: {
+		index?: number
+		elapsedTime?: number
+		bold?: boolean
+		link?: boolean
+		uploader?: boolean
+		requester?: boolean
+	} = {}
+): string {
 	let result = ""
 
 	if (index != undefined) result += `\`${twoDigits(index)}\` `
