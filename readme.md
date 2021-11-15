@@ -3,7 +3,7 @@
 ## Bugs
 
 - There's no /search lol
-- Potentially unhandled stale media source links (hasn't been an issue yet, but just to note)
+- Unhandled stale media source links (hasn't been an issue yet, but just to note)
 - Crash in the middle of queuing a playlist leads to it queueing incompletely
 - Missing audio files' duration (direct file source) (_maybe_ won't fix)
 - Corrupted queue storage prevents startup
@@ -12,7 +12,6 @@
 
 - Retry system on play (and give up)
 - Leave when on StandBy for too long
-- Better /queue
 - Better /now-playing
 - Proper error handling, instead of failing silently
 - /np and /q shorthands
@@ -25,6 +24,7 @@
 
 ## Done :)
 
+- Better /queue
 - Moving songs in queue
 - Add `position` option to /play
 - Pausing
