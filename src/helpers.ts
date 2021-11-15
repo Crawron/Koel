@@ -44,20 +44,26 @@ export function fmtTime(time: number): string {
 	)
 }
 
-type Page<T> = { items: T[]; isLastPage: boolean; isFirstPage: boolean }
-export function paginate<T>([...arr]: T[], itemsPerPage: number): Page<T>[] {
+type Page<T> = {
+	index: number
+	items: T[]
+	isLastPage: boolean
+	isFirstPage: boolean
+}
+export function paginate<T>([...arr]: T[], itemsPerPage: number) {
 	const pages: Page<T>[] = []
 
 	const pageCount = Math.ceil(arr.length / itemsPerPage)
 	for (let page = 0; page < pageCount; page++) {
 		pages.push({
+			index: page + 1,
 			items: arr.splice(0, itemsPerPage),
 			isLastPage: page === pageCount - 1,
 			isFirstPage: page === 0,
 		})
 	}
 
-	return pages
+	return { pages, pageCount }
 }
 
 export const createPlayerCommandRun =
