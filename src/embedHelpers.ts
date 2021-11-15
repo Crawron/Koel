@@ -21,28 +21,39 @@ function formatSong(
 		elapsedTime?: number
 		bold?: boolean
 		link?: boolean
+		uploader?: boolean
+		requester?: boolean
 	}
 ): string {
-	const { index, elapsedTime, link, bold } = options ?? {}
-
-	const lit = (condition: unknown, text: string) => (condition ? text : "")
-
-	const duration = `${[
-		elapsedTime && fmtTime(elapsedTime),
-		song.duration && fmtTime(song.duration),
-	]
-		.filter(isTruthy)
-		.join(" / ")}`
+	const {
+		index,
+		elapsedTime,
+		link,
+		bold,
+		requester = true,
+		uploader,
+	} = options ?? {}
 
 	let result = ""
 
 	if (index != undefined) result += `\`${twoDigits(index)}\` `
-	result += `${lit(bold, "**")}${lit(link, "[")}${escFmting(song.title)}${lit(
-		link,
-		`](${song.url})`
-	)}${lit(duration, ` \`${duration}\``)}${lit(bold, "**")} _<@${
-		song.requester
-	}>_`
+
+	let title = escFmting(song.title)
+	if (link) title = `[${title}](${song.url})`
+	if (bold) title = `**${title}**`
+	result += title
+
+	if (uploader) result += ` *${song.uploader}*`
+
+	const duration = [
+		elapsedTime && fmtTime(elapsedTime),
+		song.duration && fmtTime(song.duration),
+	]
+		.filter(isTruthy)
+		.join(" / ")
+	if (duration) result += ` \`${duration}\``
+
+	if (requester) result += ` _<@${song.requester}>_`
 
 	return result
 }
@@ -79,6 +90,7 @@ export function createQueueMessage(
 			index: 0,
 			bold: true,
 			link: true,
+			uploader: true,
 			elapsedTime: queue.currentTime,
 		})}\n\n`
 
