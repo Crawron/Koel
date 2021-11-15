@@ -42,11 +42,6 @@ describe("Paginator", () => {
 		expect(pageCount).toBe(5)
 	})
 
-	test("Count total pages", () => {
-		const { pageCount } = paginate(sampleArray, 2)
-		expect(pageCount).toBe(5)
-	})
-
 	test("Indexes pages", () => {
 		const indices = paginate(sampleArray, 2).pages.map((page) => page.index)
 
