@@ -3,7 +3,6 @@
 ## Bugs
 
 - There's no /search lol
-- Off by one error in /queue (3 pages when there's 20 elements in 2)
 - Potentially unhandled stale media source links (hasn't been an issue yet, but just to note)
 - Crash in the middle of queuing a playlist leads to it queueing incompletely
 - Missing audio files' duration (direct file source) (_maybe_ won't fix)
@@ -35,6 +34,7 @@
 
 ## Fixed
 
+- Off by one error in /queue (3 pages when there's 20 elements in 2)
 - Not properly saving last connected vc for persistence (including being disconnected)
 - /play always queueing in position 0 (current song)
 - /skip is just completely broken
