@@ -53,6 +53,6 @@ async function saveQueueBounced(queue: QueueData) {
 
 export const saveQueue = debounce(1000, saveQueueBounced)
 
-export async function deleteQueue(queue: QueueData) {
-	await unlink(`storage/queues/${queue.id}.json`)
+export async function deleteQueue(queueId: string) {
+	await unlink(`storage/queues/${queueId}.json`)
 }

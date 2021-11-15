@@ -11,7 +11,7 @@ import { djsClient } from "./clients"
 import { cap, move, shuffle } from "./helpers"
 import { log } from "./logging"
 import { Song } from "./Song"
-import { QueueData, saveQueue } from "./storage"
+import { deleteQueue, QueueData, saveQueue } from "./storage"
 import { VoicePlayer } from "./VoicePlayer"
 
 export type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
@@ -79,6 +79,7 @@ export class Queue {
 	destroy() {
 		this.player.destroy()
 		this.disposeCallbacks.forEach((cb) => cb())
+		deleteQueue(this.guildId)
 	}
 
 	connect(voiceChannel: VoiceChannel | StageChannel) {
