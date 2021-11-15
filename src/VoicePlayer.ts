@@ -76,13 +76,14 @@ export class VoicePlayer {
 		this.connection.subscribe(this.player)
 
 		this.connection.on("stateChange", (_, newState) => {
+			log(`State changed: ${newState.status}`, 0)
+			if (newState.status === "disconnected") this.disconnect()
 			this.isConnected = newState.status === "ready"
 		})
 	}
 
 	disconnect() {
 		if (this.connection) {
-			this.connection.disconnect()
 			this.connection.destroy()
 			this.connection = null
 		}

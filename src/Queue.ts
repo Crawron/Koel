@@ -11,7 +11,7 @@ import { djsClient } from "./clients"
 import { cap, move, shuffle } from "./helpers"
 import { log } from "./logging"
 import { Song } from "./Song"
-import { QueueData, saveQueue } from "./storage"
+import { deleteQueue, QueueData, saveQueue } from "./storage"
 import { VoicePlayer } from "./VoicePlayer"
 
 export type RequestType = "Video" | "Playlist" | "PlaylistVideo" | "Query"
@@ -32,6 +32,12 @@ export class Queue {
 			reaction(
 				() => this.toData(),
 				(data) => saveQueue(data)
+			),
+			reaction(
+				() => this.player.isConnected,
+				() => {
+					saveQueue(this.toData())
+				}
 			),
 			reaction(
 				() => this.currentSong,
@@ -79,10 +85,16 @@ export class Queue {
 	destroy() {
 		this.player.destroy()
 		this.disposeCallbacks.forEach((cb) => cb())
+		deleteQueue(this.guildId)
 	}
 
 	connect(voiceChannel: VoiceChannel | StageChannel) {
 		this.player.connect(voiceChannel)
+	}
+
+	disconnect() {
+		this.player.disconnect()
+		saveQueue(this.toData())
 	}
 
 	get isConnected() {
