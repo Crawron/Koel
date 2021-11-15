@@ -114,6 +114,7 @@ export function createQueueMessage(
 			},
 		}),
 		currentPage &&
+			upNext.pageCount > 1 &&
 			buttonComponent({
 				label: "First",
 				style: "SECONDARY",
@@ -121,6 +122,7 @@ export function createQueueMessage(
 				onClick: () => onPageChange(0),
 			}),
 		currentPage &&
+			upNext.pageCount > 1 &&
 			buttonComponent({
 				emoji: "⬅️",
 				label: "",
@@ -129,6 +131,7 @@ export function createQueueMessage(
 				onClick: () => onPageChange(pageIndex),
 			}),
 		currentPage &&
+			upNext.pageCount > 1 &&
 			buttonComponent({
 				emoji: "➡️",
 				label: "",
@@ -137,6 +140,7 @@ export function createQueueMessage(
 				onClick: () => onPageChange(pageIndex + 2),
 			}),
 		currentPage &&
+			upNext.pageCount > 1 &&
 			buttonComponent({
 				label: "Last",
 				style: "SECONDARY",
