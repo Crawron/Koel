@@ -32,7 +32,7 @@ export function tryGetQueue(
 	return createQueue(ctx.member.voice.channel)
 }
 
-export function destroyPlayer(guildId: Snowflake): boolean {
+export function destroyQueue(guildId: Snowflake): boolean {
 	activeQueues.get(guildId)?.destroy()
 	return activeQueues.delete(guildId)
 }
