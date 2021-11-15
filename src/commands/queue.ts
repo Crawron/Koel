@@ -17,12 +17,6 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			const itemsPerPage = 10
 
-			const pageCount = Math.floor(player.list.length / itemsPerPage) + 1
-			let pageNumber = Math.min(
-				Math.max(ctx.options.page ?? 1 - 1, 0),
-				pageCount - 1
-			)
-
 			const nextSongs = player.list.filter((_, i) => i > player.queuePosition)
 
 			const nextSongsStr = nextSongs.map(
@@ -33,6 +27,11 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			)
 
 			const queuePages = paginate(nextSongsStr, itemsPerPage)
+
+			let pageNumber = Math.min(
+				Math.max(ctx.options.page ?? 1 - 1, 0),
+				queuePages.pageCount
+			)
 
 			const totalRuntime = fmtTime(
 				nextSongs.reduce((p, c) => p + c.duration, 0)
@@ -55,7 +54,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			}
 
 			ctx.reply(() => {
-				const currentPage = queuePages[pageNumber]
+				const currentPage = queuePages.pages[pageNumber]
 				if (!currentPage) return "Empty"
 
 				return [
@@ -79,11 +78,13 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 							? [{ name: "Up next", value: currentPage.items.join("\n") }]
 							: [],
 						footer:
-							pageCount > 1
-								? { text: `Page ${pageNumber + 1} of ${pageCount}` }
+							queuePages.pageCount > 1
+								? {
+										text: `Page ${currentPage.index} of ${queuePages.pageCount}`,
+								  }
 								: undefined,
 					}),
-					pageCount > 1
+					queuePages.pageCount > 1
 						? [
 								buttonComponent({
 									emoji: "⬅️",
