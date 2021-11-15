@@ -16,33 +16,42 @@ import { Song } from "./Song"
 
 function formatSong(
 	song: Song,
-	options?: {
+	{
+		index,
+		elapsedTime,
+		link,
+		bold,
+		requester = true,
+		uploader,
+	}: {
 		index?: number
 		elapsedTime?: number
 		bold?: boolean
 		link?: boolean
-	}
+		uploader?: boolean
+		requester?: boolean
+	} = {}
 ): string {
-	const { index, elapsedTime, link, bold } = options ?? {}
+	let result = ""
 
-	const lit = (condition: unknown, text: string) => (condition ? text : "")
+	if (index != undefined) result += `\`${twoDigits(index)}\` `
 
-	const duration = `${[
+	let title = escFmting(song.title)
+	if (link) title = `[${title}](${song.url})`
+	if (bold) title = `**${title}**`
+	result += title
+
+	if (uploader) result += ` *${song.uploader}*`
+
+	const duration = [
 		elapsedTime && fmtTime(elapsedTime),
 		song.duration && fmtTime(song.duration),
 	]
 		.filter(isTruthy)
-		.join(" / ")}`
+		.join(" / ")
+	if (duration) result += ` \`${duration}\``
 
-	let result = ""
-
-	if (index != undefined) result += `\`${twoDigits(index)}\` `
-	result += `${lit(bold, "**")}${lit(link, "[")}${song.title}${lit(
-		link,
-		`](${song.url})`
-	)}${lit(duration, ` \`${duration}\``)}${lit(bold, "**")} _<@${
-		song.requester
-	}>_`
+	if (requester) result += ` _<@${song.requester}>_`
 
 	return result
 }
@@ -79,6 +88,7 @@ export function createQueueMessage(
 			index: 0,
 			bold: true,
 			link: true,
+			uploader: true,
 			elapsedTime: queue.currentTime,
 		})}\n\n`
 
@@ -104,6 +114,7 @@ export function createQueueMessage(
 			},
 		}),
 		currentPage &&
+			upNext.pageCount > 1 &&
 			buttonComponent({
 				label: "First",
 				style: "SECONDARY",
@@ -111,6 +122,7 @@ export function createQueueMessage(
 				onClick: () => onPageChange(0),
 			}),
 		currentPage &&
+			upNext.pageCount > 1 &&
 			buttonComponent({
 				emoji: "⬅️",
 				label: "",
@@ -119,6 +131,7 @@ export function createQueueMessage(
 				onClick: () => onPageChange(pageIndex),
 			}),
 		currentPage &&
+			upNext.pageCount > 1 &&
 			buttonComponent({
 				emoji: "➡️",
 				label: "",
@@ -127,6 +140,7 @@ export function createQueueMessage(
 				onClick: () => onPageChange(pageIndex + 2),
 			}),
 		currentPage &&
+			upNext.pageCount > 1 &&
 			buttonComponent({
 				label: "Last",
 				style: "SECONDARY",
