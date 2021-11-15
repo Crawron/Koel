@@ -37,7 +37,7 @@ function formatSong(
 	let result = ""
 
 	if (index != undefined) result += `\`${twoDigits(index)}\` `
-	result += `${lit(bold, "**")}${lit(link, "[")}${song.title}${lit(
+	result += `${lit(bold, "**")}${lit(link, "[")}${escFmting(song.title)}${lit(
 		link,
 		`](${song.url})`
 	)}${lit(duration, ` \`${duration}\``)}${lit(bold, "**")} _<@${
