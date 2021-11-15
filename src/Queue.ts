@@ -86,6 +86,11 @@ export class Queue {
 		this.player.connect(voiceChannel)
 	}
 
+	disconnect() {
+		this.player.disconnect()
+		saveQueue(this.toData())
+	}
+
 	get isConnected() {
 		return this.player.isConnected
 	}

@@ -1,15 +1,15 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
-import { destroyPlayer, tryGetQueue } from "../queueHandler"
+import { tryGetQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: "leave",
 		description: "Leave the current voice channel",
 		run(ctx) {
-			const player = tryGetQueue(ctx)
-			if (!player) return
+			const queue = tryGetQueue(ctx)
+			if (!queue) return
 
-			destroyPlayer(ctx.guild?.id ?? "")
+			queue.disconnect()
 			ctx.reply(() => "_:wave:_")
 		},
 	})
