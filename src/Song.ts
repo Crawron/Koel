@@ -31,7 +31,7 @@ export class Song {
 				chapters: data.chapters
 					.map((chapter) => ({
 						title: chapter.title,
-						start_time: chapter.startTime,
+						start_time: chapter.startTime / 1000,
 					}))
 					.sort((a, b) => a.start_time - b.start_time),
 				thumbnail: data.thumbnail ?? undefined,
