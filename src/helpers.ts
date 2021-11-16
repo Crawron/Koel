@@ -10,7 +10,7 @@ import { tryGetQueue } from "./queueHandler"
 
 /** Escape Discord formatting  */
 export function escFmting(text: string | undefined) {
-	return text?.replace(/[<>:*_~#@]/g, "$&") ?? "_none_"
+	return text?.replace(/[<>:*_~#@]/g, "\\$&") ?? "_none_"
 }
 
 /** Check if two numbers are close to each other by a certain margin */
