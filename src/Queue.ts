@@ -1,4 +1,3 @@
-import { bold } from "chalk"
 import { VoiceChannel, StageChannel, Snowflake } from "discord.js"
 import {
 	IReactionDisposer,
@@ -9,7 +8,6 @@ import {
 } from "mobx"
 import { djsClient } from "./clients"
 import { cap, move, shuffle } from "./helpers"
-import { log } from "./logging"
 import { Song } from "./Song"
 import { deleteQueue, QueueData, saveQueue } from "./storage"
 import { VoicePlayer } from "./VoicePlayer"
@@ -30,28 +28,28 @@ export class Queue {
 
 		this.disposeCallbacks.push(
 			reaction(
-				() => this.toData(),
-				(data) => saveQueue(data)
-			),
-			reaction(
 				() => this.player.isConnected,
-				() => {
-					saveQueue(this.toData())
-				}
+				() => saveQueue(this.toData())
 			),
 			reaction(
 				() => this.currentSong,
 				(song) => {
 					if (song != null) this.setPlayStream()
-					else this.player.stop()
+					else this.player.pause()
 				}
 			)
 		)
 	}
 
+	destroy() {
+		this.player.destroy()
+		this.disposeCallbacks.forEach((cb) => cb())
+		deleteQueue(this.guildId)
+	}
+
 	static fromData(data: QueueData) {
 		const queue = new Queue(data.id)
-		if (data.playerStatus === "Paused") queue.player.pause()
+		if (data.paused) queue.player.pause()
 
 		if (data.voiceChannel) {
 			const vc = djsClient.channels.cache.get(data.voiceChannel) as
@@ -70,26 +68,19 @@ export class Queue {
 	}
 
 	toData(): QueueData {
-		const data: QueueData = {
+		return {
 			id: this.guildId,
+			paused: this.player.paused,
 			playedTime: this.player.playedTime,
-			playerStatus: this.player.playStatus,
-			list: this.list.map((song) => song.toData()),
-			queuePosition: this.queuePosition,
 			voiceChannel: this.player.voiceChannelId,
+			queuePosition: this.queuePosition,
+			list: this.list.map((song) => song.toData()),
 		}
-
-		return data
-	}
-
-	destroy() {
-		this.player.destroy()
-		this.disposeCallbacks.forEach((cb) => cb())
-		deleteQueue(this.guildId)
 	}
 
 	connect(voiceChannel: VoiceChannel | StageChannel) {
 		this.player.connect(voiceChannel)
+		saveQueue(this.toData())
 	}
 
 	disconnect() {
@@ -101,22 +92,22 @@ export class Queue {
 		return this.player.isConnected
 	}
 
+	get paused() {
+		return this.player.paused
+	}
+
 	get upcomingSongs() {
 		return this.list.slice(this.queuePosition + 1)
 	}
 
 	get currentSong() {
-		if (this.queuePosition <= this.list.length - 1)
-			return this.list[this.queuePosition]
-		else return undefined
+		// mobx yells at you if you try to access an array out of bounds
+		if (this.queuePosition >= this.list.length) return undefined
+		return this.list[this.queuePosition]
 	}
 
 	get history() {
 		return this.list.slice(0, this.queuePosition)
-	}
-
-	get status() {
-		return this.player.playStatus
 	}
 
 	get queuePosition() {
@@ -125,14 +116,12 @@ export class Queue {
 
 	set queuePosition(value: number) {
 		this._queuePosition = Math.max(Math.min(value, this.list.length), 0)
-	}
-
-	joinVoiceChannel(channel: VoiceChannel | StageChannel) {
-		this.player.connect(channel)
+		saveQueue(this.toData())
 	}
 
 	addToQueue(song: Song, position = this.list.length) {
 		this.list.splice(position, 0, song)
+		saveQueue(this.toData())
 	}
 
 	moveSong(from: number, to: number) {
@@ -142,20 +131,24 @@ export class Queue {
 		const reSorted = move(this.upcomingSongs, from, to)
 		this.list.splice(this.queuePosition + 1)
 		this.list.push(...reSorted)
+		saveQueue(this.toData())
 	}
 
 	/** Returns deleted songs */
 	clearQueue() {
-		return this.list.splice(this._queuePosition + 1)
+		const deletedCount = this.list.splice(this._queuePosition + 1).length
+		saveQueue(this.toData())
+		return deletedCount
 	}
 
 	shuffle() {
 		this.list.push(...shuffle(this.list.splice(this.queuePosition + 1)))
+		saveQueue(this.toData())
 	}
 
 	togglePlay() {
-		if (this.player.playStatus === "Paused") this.player.resume()
-		else if (this.player.playStatus === "Playing") this.player.pause()
+		if (this.player.paused) this.player.resume()
+		else this.player.pause()
 	}
 
 	get currentTime() {
@@ -166,7 +159,5 @@ export class Queue {
 		const song = this.currentSong
 		if (!song) return
 		this.player.setSong(song)
-
-		log(`Set stream to... ${bold(song.title)}`, 0)
 	}
 }

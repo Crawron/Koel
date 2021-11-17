@@ -11,7 +11,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			const deleted = queue.clearQueue()
 
-			ctx.reply(() => `Cleared ${deleted.length} songs from the queue`)
+			ctx.reply(() => `Cleared ${deleted} songs from the queue`)
 		},
 	})
 }

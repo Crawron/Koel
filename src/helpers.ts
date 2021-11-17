@@ -1,13 +1,3 @@
-import {
-	buttonComponent,
-	ButtonInteractionContext,
-	SlashCommandInteractionContext,
-} from "@itsmapleleaf/gatekeeper"
-import { log, LogLevel } from "./logging"
-import { Queue } from "./Queue"
-import { Song } from "./Song"
-import { tryGetQueue } from "./queueHandler"
-
 /** Escape Discord formatting  */
 export function escFmting(text: string | undefined) {
 	return text?.replace(/[<>:*_~#@]/g, "\\$&") ?? "_none_"
@@ -28,6 +18,7 @@ export function parseTime(time: string) {
 	return ((hours * 60 + minutes) * 60 + seconds) * 1000
 }
 
+/** Format a number to be two digits or more */
 export const twoDigits = (n: number) => n.toString().padStart(2, "0")
 
 /** Format milliseconds to human time */
@@ -44,12 +35,6 @@ export function fmtTime(time: number): string {
 	)
 }
 
-type Page<T> = {
-	index: number
-	items: T[]
-	isLastPage: boolean
-	isFirstPage: boolean
-}
 export function paginate<T>([...arr]: T[], itemsPerPage: number) {
 	const pages: Page<T>[] = []
 
@@ -65,21 +50,12 @@ export function paginate<T>([...arr]: T[], itemsPerPage: number) {
 
 	return { pages, pageCount }
 }
-
-export const createPlayerCommandRun =
-	<T extends SlashCommandInteractionContext>(
-		callback: (ctx: T, player: Queue) => void | Promise<unknown>
-	) =>
-	async (ctx: T) => {
-		const player = tryGetQueue(ctx)
-		if (!player) return
-
-		try {
-			await callback(ctx, player)
-		} catch (e) {
-			log(e, LogLevel.Error)
-		}
-	}
+type Page<T> = {
+	index: number
+	items: T[]
+	isLastPage: boolean
+	isFirstPage: boolean
+}
 
 /** Shuffle an array, duh. Modified from https://stackoverflow.com/a/2450976 */
 export function shuffle<T>([...array]: T[]): T[] {
@@ -99,29 +75,6 @@ export function shuffle<T>([...array]: T[]): T[] {
 	return array
 }
 
-export function getQueueAddedMessage(...songs: Song[]) {
-	const songList = songs
-		.map((song) => `[${escFmting(song.title)}](<${song.url}>)`)
-		.join(", ")
-
-	if (songList.length > 250) return `Queued ${songs.length} songs`
-	else return `Queued ${songList}`
-}
-
-export function accentButton(
-	label: string,
-	callback: (ctx: ButtonInteractionContext) => void
-) {
-	return buttonComponent({ label, style: "PRIMARY", onClick: callback })
-}
-
-export function grayButton(
-	label: string,
-	callback: (ctx: ButtonInteractionContext) => void
-) {
-	return buttonComponent({ label, style: "SECONDARY", onClick: callback })
-}
-
 export function cap(value: number, min: number, max: number) {
 	return Math.min(Math.max(value, min), max)
 }
@@ -131,12 +84,20 @@ export function move<T>([...arr]: T[], from: number, to: number) {
 	return arr
 }
 
-export function focusOn<T>(arr: T[], pivot: number, radius: number) {
-	const start = Math.max(pivot - radius, 0)
+export function focusOn<T>(
+	[...items]: T[],
+	pivot: number,
+	radius: number
+): { pivot: number; items: T[] } {
+	const focusLength = radius * 2 + 1
+	const start = Math.min(
+		Math.max(0, pivot - radius),
+		items.length - focusLength
+	)
 
 	return {
-		items: arr.slice(start, Math.min(pivot + radius + 1, arr.length)),
 		pivot: pivot - start,
+		items: items.slice(start, start + focusLength),
 	}
 }
 

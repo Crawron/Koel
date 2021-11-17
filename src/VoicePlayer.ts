@@ -7,12 +7,10 @@ import {
 	VoiceConnection,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
+import execa from "execa"
 import { makeAutoObservable } from "mobx"
-import { log } from "./logging"
 import { Song } from "./Song"
 import { Timer } from "./Timer"
-
-export type VoicePlayerStatus = "Playing" | "Paused" | "StandBy"
 
 export class VoicePlayer {
 	private connection: VoiceConnection | null = null
@@ -21,7 +19,7 @@ export class VoicePlayer {
 	private player: AudioPlayer
 
 	isConnected = false
-	playStatus: VoicePlayerStatus = "StandBy"
+	paused = false
 
 	constructor(public onIdle: () => void) {
 		makeAutoObservable(this, { playedTime: false })
@@ -31,7 +29,6 @@ export class VoicePlayer {
 		})
 
 		this.player.on("stateChange", (oldState, newState) => {
-			// log(`State changed: ${oldState.status} -> ${newState.status}`, 0)
 			if (newState.status === "playing") {
 				this.timer.time = newState.playbackDuration
 			}
@@ -40,13 +37,12 @@ export class VoicePlayer {
 				this.timer.time = oldState.playbackDuration
 			}
 
-			if (oldState.status === "buffering" && this.playStatus === "Paused") {
+			if (oldState.status === "buffering" && this.paused) {
 				this.pause()
 			}
 
 			if (newState.status === "idle") {
 				this.song = null
-				this.playStatus = "StandBy"
 				this.timer.pause()
 				this.timer.reset()
 				this.onIdle()
@@ -76,7 +72,6 @@ export class VoicePlayer {
 		this.connection.subscribe(this.player)
 
 		this.connection.on("stateChange", (_, newState) => {
-			log(`State changed: ${newState.status}`, 0)
 			if (newState.status === "disconnected") this.disconnect()
 			this.isConnected = newState.status === "ready"
 		})
@@ -91,48 +86,47 @@ export class VoicePlayer {
 
 	setSong(song: Song) {
 		this.song = song
-		if (this.playStatus === "Paused") this.pause()
+		if (this.paused) this.pause()
 		this.startStream()
 	}
 
 	async startStream() {
-		log(`startStream ${this.playStatus}`, 0)
 		if (!this.song) return
-
 		this.timer.run()
 
-		const resource = createAudioResource(await this.song.getOpusStream())
+		const resource = createAudioResource(
+			await this.getOpusStream(this.song.mediaUrl)
+		)
 
 		this.player.play(resource)
-		if (this.playStatus === "StandBy") this.playStatus = "Playing"
+		this.paused = false
 	}
 
-	stop() {
-		this.song = null
-		this.player.stop()
-		this.timer.pause()
-		this.timer.reset()
-		this.playStatus = "StandBy"
+	private async getOpusStream(url: string) {
+		const process = execa("ffmpeg", [
+			"-i",
+			url,
+			"-f",
+			"opus",
+			"-v",
+			"quiet",
+			"-",
+		])
+
+		if (!process.stdout) throw Error("ffmpeg stdout is somehow null")
+		return process.stdout
 	}
 
 	resume() {
-		log(this.playStatus, 0)
 		this.player.unpause()
 		this.timer.run()
-		this.playStatus = "Playing"
+		this.paused = false
 	}
 
 	pause() {
 		this.player.pause()
 		this.timer.pause()
-		this.playStatus = "Paused"
-		log(`pause ${this.playStatus}`, 0)
-	}
-
-	/** Incomplete */
-	seek(time: number) {
-		this.timer.time = time
-		// ToDo: Actually seek on the stream
+		this.paused = true
 	}
 
 	get playedTime() {
@@ -141,9 +135,5 @@ export class VoicePlayer {
 
 	get voiceChannelId() {
 		return this.connection?.joinConfig.channelId ?? undefined
-	}
-
-	get guildId() {
-		return this.connection?.joinConfig.guildId ?? undefined
 	}
 }

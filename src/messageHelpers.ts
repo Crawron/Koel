@@ -1,60 +1,12 @@
 import {
 	buttonComponent,
+	ButtonInteractionContext,
 	embedComponent,
 	ReplyComponent,
 } from "@itsmapleleaf/gatekeeper"
-import {
-	cap,
-	escFmting,
-	fmtTime,
-	isTruthy,
-	paginate,
-	twoDigits,
-} from "./helpers"
+import { cap, fmtTime, isTruthy, paginate } from "./helpers"
 import { Queue } from "./Queue"
 import { Song } from "./Song"
-
-function formatSong(
-	song: Song,
-	{
-		index,
-		elapsedTime,
-		link,
-		bold,
-		requester = true,
-		uploader,
-	}: {
-		index?: number
-		elapsedTime?: number
-		bold?: boolean
-		link?: boolean
-		uploader?: boolean
-		requester?: boolean
-	} = {}
-): string {
-	let result = ""
-
-	if (index != undefined) result += `\`${twoDigits(index)}\` `
-
-	let title = escFmting(song.title)
-	if (link) title = `[${title}](${song.url})`
-	if (bold) title = `**${title}**`
-	result += title
-
-	if (uploader) result += ` *${song.uploader}*`
-
-	const duration = [
-		elapsedTime && fmtTime(elapsedTime),
-		song.duration && fmtTime(song.duration),
-	]
-		.filter(isTruthy)
-		.join(" / ")
-	if (duration) result += ` \`${duration}\``
-
-	if (requester) result += ` _<@${song.requester}>_`
-
-	return result
-}
 
 export function createQueueMessage(
 	queue: Queue,
@@ -73,7 +25,7 @@ export function createQueueMessage(
 
 	let description = ""
 
-	if (queue.status === "Paused") description += "⏸️ "
+	if (queue.paused) description += "⏸️ "
 
 	if (!nowPlaying && !currentPage)
 		return [
@@ -84,7 +36,7 @@ export function createQueueMessage(
 		]
 
 	if (nowPlaying)
-		description += `**Now Playing**\n${formatSong(nowPlaying, {
+		description += `**Now Playing**\n${nowPlaying.stringify({
 			index: 0,
 			bold: true,
 			link: true,
@@ -95,7 +47,7 @@ export function createQueueMessage(
 	if (currentPage) {
 		description += `**Up Next**\n`
 		description += currentPage.items
-			.map((song, i) => formatSong(song, { index: i + 1 + pageIndex * 10 }))
+			.map((song, i) => song.stringify({ index: i + 1 + pageIndex * 10 }))
 			.join("\n")
 	}
 
@@ -148,4 +100,25 @@ export function createQueueMessage(
 				onClick: () => onPageChange(upNext.pageCount),
 			}),
 	].filter(isTruthy)
+}
+
+export function getQueueAddedMessage(...songs: Song[]) {
+	const songList = songs.map((song) => song.stringify()).join(", ")
+
+	if (songList.length > 250) return `Queued ${songs.length} songs`
+	else return `Queued ${songList}`
+}
+
+export function accentButton(
+	label: string,
+	callback: (ctx: ButtonInteractionContext) => void
+) {
+	return buttonComponent({ label, style: "PRIMARY", onClick: callback })
+}
+
+export function grayButton(
+	label: string,
+	callback: (ctx: ButtonInteractionContext) => void
+) {
+	return buttonComponent({ label, style: "SECONDARY", onClick: callback })
 }

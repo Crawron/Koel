@@ -14,7 +14,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 				return
 			}
 
-			player.joinVoiceChannel(ctx.member.voice.channel)
+			player.connect(ctx.member.voice.channel)
 			ctx.reply(() => "Joined :thumbsup:")
 		},
 	})

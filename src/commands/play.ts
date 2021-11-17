@@ -4,9 +4,13 @@ import {
 	Gatekeeper,
 } from "@itsmapleleaf/gatekeeper"
 import { tryGetQueue } from "../queueHandler"
-import { accentButton, getQueueAddedMessage, grayButton } from "../helpers"
+import {
+	accentButton,
+	getQueueAddedMessage,
+	grayButton,
+} from "../messageHelpers"
 import { Song } from "../Song"
-import { checkRequestType } from "../sourceHandler"
+import { checkRequestType, requestYtdl } from "../sourceHandler"
 
 const playCommandOptions = {
 	song: { description: "Song to queue", type: "STRING", required: true },
@@ -24,6 +28,8 @@ const playCommandRun = async (
 	const player = tryGetQueue(ctx)
 	if (!player) return
 
+	ctx.defer()
+
 	const { song: request, position = player.upcomingSongs.length + 1 } =
 		ctx.options
 
@@ -37,8 +43,8 @@ const playCommandRun = async (
 
 		let queuingPosition = position + player.queuePosition
 
-		for await (const metadata of Song.requestYtdl(url)) {
-			const song = new Song(metadata, ctx.user.id)
+		for await (const metadata of requestYtdl(url)) {
+			const song = Song.fromYtdl(metadata, ctx.user.id)
 
 			addedSongs.push(song)
 			player.addToQueue(song, queuingPosition)

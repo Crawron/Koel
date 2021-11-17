@@ -11,7 +11,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			player.togglePlay()
 
-			ctx.reply(() => `_${player.status}_`)
+			ctx.reply(() => `_${player.paused}_`)
 		},
 	})
 
@@ -24,7 +24,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			player.togglePlay()
 
-			ctx.reply(() => `_${player.status}_`)
+			ctx.reply(() => `_${player.paused}_`)
 		},
 	})
 }

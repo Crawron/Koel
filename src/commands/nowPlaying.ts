@@ -20,9 +20,9 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 				embedComponent({
 					author: { name: escFmting(currentSong.uploader ?? "") },
 					title: escFmting(currentSong.title),
-					url: currentSong.url,
-					thumbnail: currentSong.thumbnail
-						? { url: currentSong.thumbnail }
+					url: currentSong.pageUrl,
+					thumbnail: currentSong.thumbnailUrl
+						? { url: currentSong.thumbnailUrl }
 						: undefined,
 					description: `**\`${fmtTime(player.currentTime)} / ${fmtTime(
 						currentSong.duration

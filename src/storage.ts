@@ -9,10 +9,10 @@ import { debounce } from "./helpers"
 export type SongData = {
 	title: string
 	mediaUrl: string
-	url: string
+	pageUrl: string
 	source: string
 	duration: number
-	thumbnail?: string
+	thumbnailUrl?: string
 	uploader?: string
 	requester: Snowflake
 	chapters: {
@@ -25,7 +25,7 @@ export type QueueData = {
 	id: Snowflake
 	list: SongData[]
 	queuePosition: number
-	playerStatus: "Playing" | "Paused" | "StandBy"
+	paused: boolean
 	voiceChannel?: Snowflake
 	playedTime: number
 }
