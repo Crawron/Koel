@@ -51,37 +51,37 @@ describe("Paginator", () => {
 
 describe("Focus", () => {
 	test("Focus on first element", () => {
-		const { items, pivot } = focusOn(sampleArray, 0, 2)
+		const { items, focusPivot: pivot } = focusOn(sampleArray, 0, 2)
 		expect(items).toStrictEqual([1, 2, 3, 4, 5])
 		expect(pivot).toBe(0)
 	})
 
 	test("Focus on the second element", () => {
-		const { items, pivot } = focusOn(sampleArray, 1, 2)
+		const { items, focusPivot: pivot } = focusOn(sampleArray, 1, 2)
 		expect(items).toStrictEqual([1, 2, 3, 4, 5])
 		expect(pivot).toBe(1)
 	})
 
 	test("Focus on a middle element", () => {
-		const { items, pivot } = focusOn(sampleArray, 5, 2)
+		const { items, focusPivot: pivot } = focusOn(sampleArray, 5, 2)
 		expect(items).toStrictEqual([4, 5, 6, 7, 8])
 		expect(pivot).toBe(2)
 	})
 
 	test("Focus on the third to last element", () => {
-		const { items, pivot } = focusOn(sampleArray, 7, 2)
+		const { items, focusPivot: pivot } = focusOn(sampleArray, 7, 2)
 		expect(items).toStrictEqual([6, 7, 8, 9, 10])
 		expect(pivot).toBe(2)
 	})
 
 	test("Focus on the second to last element", () => {
-		const { items, pivot } = focusOn(sampleArray, 8, 2)
+		const { items, focusPivot: pivot } = focusOn(sampleArray, 8, 2)
 		expect(items).toStrictEqual([6, 7, 8, 9, 10])
 		expect(pivot).toBe(3)
 	})
 
 	test("Focus on last element", () => {
-		const { items, pivot } = focusOn(sampleArray, 9, 2)
+		const { items, focusPivot: pivot } = focusOn(sampleArray, 9, 2)
 		expect(items).toStrictEqual([6, 7, 8, 9, 10])
 		expect(pivot).toBe(4)
 	})

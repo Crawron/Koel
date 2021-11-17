@@ -87,24 +87,26 @@ export class Song {
 		return data
 	}
 
-	getFormattedChapters(currentTime: number, radius = 1) {
+	getFormattedChapters(currentTime: number) {
 		if (!this.chapters) return "_none_"
 
-		const pivot =
-			this.chapters.length -
-			1 -
-			[...this.chapters].reverse().findIndex((chapter) => {
-				return chapter.startTime <= currentTime
+		const currentChapterIndex =
+			this.chapters.findIndex((chapter) => chapter.startTime > currentTime) - 1
+
+		const { items, focusPivot, startIndex } = focusOn(
+			this.chapters,
+			currentChapterIndex,
+			2
+		)
+
+		return items
+			.map((chapter, i) => {
+				const text = `\`${twoDigits(i + startIndex + 1)}\` \`${fmtTime(
+					chapter.startTime
+				)}\` ${escFmting(chapter.title)}`
+
+				return i === focusPivot ? `**${text}**` : text
 			})
-
-		const chapters = focusOn(this.chapters, pivot, radius)
-
-		return chapters.items
-			.map((chapter, i) =>
-				i === chapters.pivot
-					? `**\`${fmtTime(chapter.startTime)}\` ${escFmting(chapter.title)}**`
-					: `\`${fmtTime(chapter.startTime)}\` ${escFmting(chapter.title)}`
-			)
 			.join("\n")
 	}
 

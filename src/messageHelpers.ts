@@ -37,7 +37,6 @@ export function createQueueMessage(
 
 	if (nowPlaying)
 		description += `**Now Playing**\n${nowPlaying.stringify({
-			index: 0,
 			bold: true,
 			link: true,
 			uploader: true,

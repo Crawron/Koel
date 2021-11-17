@@ -84,11 +84,7 @@ export function move<T>([...arr]: T[], from: number, to: number) {
 	return arr
 }
 
-export function focusOn<T>(
-	[...items]: T[],
-	pivot: number,
-	radius: number
-): { pivot: number; items: T[] } {
+export function focusOn<T>([...items]: T[], pivot: number, radius: number) {
 	const focusLength = radius * 2 + 1
 	const start = Math.min(
 		Math.max(0, pivot - radius),
@@ -96,7 +92,8 @@ export function focusOn<T>(
 	)
 
 	return {
-		pivot: pivot - start,
+		startIndex: start,
+		focusPivot: pivot - start,
 		items: items.slice(start, start + focusLength),
 	}
 }
