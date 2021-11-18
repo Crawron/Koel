@@ -107,7 +107,9 @@ export function getQueueAddedMessage(
 ): ReplyComponent[] {
 	const songList = songs
 		.slice(0, 5)
-		.map((song, i) => song.stringify({ link: true, index: addedPosition + i }))
+		.map((song, i) =>
+			song.stringify({ link: true, index: addedPosition + i, requester: false })
+		)
 		.join("\n")
 
 	const footer =
