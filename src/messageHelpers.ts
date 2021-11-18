@@ -101,11 +101,26 @@ export function createQueueMessage(
 	].filter(isTruthy)
 }
 
-export function getQueueAddedMessage(...songs: Song[]) {
-	const songList = songs.map((song) => song.stringify()).join(", ")
+export function getQueueAddedMessage(
+	songs: Song[],
+	addedPosition: number
+): ReplyComponent[] {
+	const songList = songs
+		.slice(0, 5)
+		.map((song, i) => song.stringify({ link: true, index: addedPosition + i }))
+		.join("\n")
 
-	if (songList.length > 250) return `Queued ${songs.length} songs`
-	else return `Queued ${songList}`
+	const footer =
+		songs.length > 5 ? { text: `And ${songs.length - 5} more...` } : undefined
+
+	return [
+		embedComponent({
+			author: { name: "Added to queue" },
+			description: `${songList}`,
+			color: 0x0773e6,
+			footer: footer,
+		}),
+	]
 }
 
 export function accentButton(

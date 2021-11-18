@@ -89,7 +89,7 @@ const playCommandRun = async (
 			]
 
 		if (addedSongs.length < 1) return "Failed to get any songs to add to queue"
-		return getQueueAddedMessage(...addedSongs)
+		return getQueueAddedMessage(addedSongs, position)
 	})
 }
 
