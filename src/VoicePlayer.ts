@@ -9,6 +9,7 @@ import {
 import { StageChannel, VoiceChannel } from "discord.js"
 import execa from "execa"
 import { makeAutoObservable } from "mobx"
+import { fmtTime } from "./helpers"
 import { Song } from "./Song"
 import { Timer } from "./Timer"
 
@@ -29,14 +30,6 @@ export class VoicePlayer {
 		})
 
 		this.player.on("stateChange", (oldState, newState) => {
-			if (newState.status === "playing") {
-				this.timer.time = newState.playbackDuration
-			}
-
-			if (oldState.status === "playing") {
-				this.timer.time = oldState.playbackDuration
-			}
-
 			if (oldState.status === "buffering" && this.paused) {
 				this.pause()
 			}
@@ -86,7 +79,13 @@ export class VoicePlayer {
 
 	setSong(song: Song) {
 		this.song = song
+		this.timer.reset()
 		if (this.paused) this.pause()
+		this.startStream()
+	}
+
+	seek(time: number) {
+		this.timer.time = time
 		this.startStream()
 	}
 
@@ -103,7 +102,11 @@ export class VoicePlayer {
 	}
 
 	private async getOpusStream(url: string) {
+		const seekTime = this.timer.time
+
 		const process = execa("ffmpeg", [
+			"-ss",
+			fmtTime(seekTime),
 			"-i",
 			url,
 			"-f",

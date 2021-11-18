@@ -155,6 +155,10 @@ export class Queue {
 		return this.player.playedTime
 	}
 
+	set currentTime(time: number) {
+		this.player.seek(time)
+	}
+
 	private async setPlayStream() {
 		const song = this.currentSong
 		if (!song) return
