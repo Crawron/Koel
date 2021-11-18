@@ -24,7 +24,10 @@ export class Queue {
 	constructor(public guildId: Snowflake) {
 		makeAutoObservable(this)
 
-		this.player = new VoicePlayer(() => (this.queuePosition += 1))
+		this.player = new VoicePlayer(() => {
+			this.queuePosition += 1
+			this.player.seek(0)
+		})
 
 		this.disposeCallbacks.push(
 			reaction(
@@ -52,17 +55,15 @@ export class Queue {
 		if (data.paused) queue.player.pause()
 
 		if (data.voiceChannel) {
-			const vc = djsClient.channels.cache.get(data.voiceChannel) as
-				| VoiceChannel
-				| undefined
-
-			if (vc) queue.player.connect(vc)
+			const vc = djsClient.channels.cache.get(data.voiceChannel)
+			if (vc) queue.player.connect(vc as VoiceChannel)
 		}
 
-		runInAction(() => {
-			queue.list = data.list.map((song) => Song.fromData(song))
-			queue.queuePosition = data.queuePosition
-		})
+		runInAction(
+			() => (queue.list = data.list.map((song) => Song.fromData(song)))
+		)
+		queue.queuePosition = data.queuePosition
+		queue.currentTime = data.playedTime
 
 		return queue
 	}
@@ -149,6 +150,7 @@ export class Queue {
 	togglePlay() {
 		if (this.player.paused) this.player.resume()
 		else this.player.pause()
+		saveQueue(this.toData())
 	}
 
 	get currentTime() {
@@ -157,6 +159,7 @@ export class Queue {
 
 	set currentTime(time: number) {
 		this.player.seek(time)
+		saveQueue(this.toData())
 	}
 
 	private async setPlayStream() {

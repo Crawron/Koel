@@ -79,7 +79,6 @@ export class VoicePlayer {
 
 	setSong(song: Song) {
 		this.song = song
-		this.timer.reset()
 		if (this.paused) this.pause()
 		this.startStream()
 	}
