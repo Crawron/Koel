@@ -95,7 +95,7 @@ export class Song {
 
 		const { items, focusPivot, startIndex } = focusOn(
 			this.chapters,
-			currentChapterIndex,
+			currentChapterIndex < 0 ? this.chapters.length - 1 : currentChapterIndex,
 			2
 		)
 
