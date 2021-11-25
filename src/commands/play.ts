@@ -11,6 +11,7 @@ import {
 } from "../messageHelpers"
 import { Song } from "../Song"
 import { checkRequestType, requestYtdl } from "../sourceHandler"
+import { cmdName } from "../helpers"
 
 const playCommandOptions = {
 	song: { description: "Song to queue", type: "STRING", required: true },
@@ -95,14 +96,14 @@ const playCommandRun = async (
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "play",
+		name: cmdName("play"),
 		description: "Queue a song then playing",
 		options: playCommandOptions,
 		run: playCommandRun,
 	})
 
 	gatekeeper.addSlashCommand({
-		name: "p",
+		name: cmdName("p"),
 		description: "Alias to /play",
 		options: playCommandOptions,
 		run: playCommandRun,

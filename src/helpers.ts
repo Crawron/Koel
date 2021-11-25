@@ -123,3 +123,7 @@ export function debounce<Args extends unknown[]>(
 		id = setTimeout(() => callback(...args), timeout)
 	}
 }
+
+export function cmdName(name: string) {
+	return process.env.NODE_ENV === "production" ? name : `char-${name}`
+}

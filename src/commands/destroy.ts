@@ -1,9 +1,10 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
+import { cmdName } from "../helpers"
 import { tryGetQueue, destroyQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "destroy",
+		name: cmdName("destroy"),
 		description:
 			"Completely murder the queue in this server, starting fresh. Use only when queue's completely broken",
 		run(ctx) {

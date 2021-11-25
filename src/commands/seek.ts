@@ -1,10 +1,10 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
-import { fmtTime } from "../helpers"
+import { cmdName, fmtTime } from "../helpers"
 import { tryGetQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "seek",
+		name: cmdName("seek"),
 		description: "Seek to specific point in the song",
 		options: {
 			time: {

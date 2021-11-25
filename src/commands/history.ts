@@ -1,10 +1,10 @@
 import { embedComponent, Gatekeeper } from "@itsmapleleaf/gatekeeper"
-import { fmtTime, twoDigits } from "../helpers"
+import { cmdName, fmtTime, twoDigits } from "../helpers"
 import { tryGetQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "history",
+		name: cmdName("history"),
 		description: "Show a history of previously played songs",
 		run(ctx) {
 			const queue = tryGetQueue(ctx)
