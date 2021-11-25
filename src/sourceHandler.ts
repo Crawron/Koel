@@ -3,10 +3,10 @@ import ytdl from "ytdl-core"
 import { safeJsonParse } from "./helpers"
 import { RequestType } from "./Queue"
 
-export async function* requestYtdl(request: string) {
+export async function* requestYtdl(request: string, searchLength = 1) {
 	const ytdlProcess = execa("youtube-dl", [
 		"--default-search",
-		"ytsearch",
+		`ytsearch${searchLength}:`,
 		"-f",
 		"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best[height<=480p]/worst",
 		"-s",
