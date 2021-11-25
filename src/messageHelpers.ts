@@ -19,9 +19,13 @@ export function createQueueMessage(
 
 	const currentPage = upNext.pages[pageIndex]
 
-	const remainingTime =
+	const remainingTime = Math.max(
 		(nowPlaying ? nowPlaying.duration - queue.currentTime : 0) +
-		queue.upcomingSongs.reduce((p, c) => p + c.duration, 0)
+			queue.upcomingSongs.reduce((p, c) => p + c.duration, 0),
+		0
+	)
+
+	const uncertain = queue.upcomingSongs.some((s) => !s.duration) ? "*" : ""
 
 	let description = ""
 
@@ -61,7 +65,9 @@ export function createQueueMessage(
 						: "") +
 					`${
 						queue.upcomingSongs.length || "No"
-					} songs left  ·  Remaining runtime ${fmtTime(remainingTime)}`,
+					} songs left  ·  Remaining runtime ${fmtTime(
+						remainingTime
+					)}${uncertain}`,
 			},
 		}),
 		currentPage &&
