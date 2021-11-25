@@ -2,20 +2,18 @@
 
 ## Bugs
 
-- There's no /search lol
-- Unhandled stale media source links (hasn't been an issue yet, but just to note)
+- Unhandled stale media source links (_has_ been an issue now)
 - Crash in the middle of queuing a playlist leads to it queueing incompletely
 - Missing audio files' duration (direct file source) (_maybe_ won't fix)
 - Corrupted queue storage prevents startup
+- Weird behaviour when seeking from persistence
 
 ## Planned?
 
 - Retry system on play (and give up)
-- Leave when on StandBy for too long
-- Better /now-playing
+- Automatically leave when idled for too long
 - Proper error handling, instead of failing silently
 - /np and /q shorthands
-- Seeking
 - Distributed Queue (song requests evenly split between requesters in queue)
 - Live Player Message
 - Playlist saving
@@ -24,6 +22,8 @@
 
 ## Done :)
 
+- Seeking
+- Better /now-playing
 - Better /queue
 - Moving songs in queue
 - Add `position` option to /play
@@ -34,6 +34,7 @@
 
 ## Fixed
 
+- There's no /search lol
 - Off by one error in /queue (3 pages when there's 20 elements in 2)
 - Not properly saving last connected vc for persistence (including being disconnected)
 - /play always queueing in position 0 (current song)
