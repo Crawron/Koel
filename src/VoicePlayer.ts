@@ -114,6 +114,10 @@ export class VoicePlayer {
 			"opus",
 			"-v",
 			"quiet",
+			"-ac",
+			"2",
+			"-ar",
+			"48000",
 			"-",
 		])
 
