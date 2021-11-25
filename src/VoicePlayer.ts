@@ -4,6 +4,7 @@ import {
 	createAudioResource,
 	joinVoiceChannel,
 	NoSubscriberBehavior,
+	StreamType,
 	VoiceConnection,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
@@ -93,7 +94,8 @@ export class VoicePlayer {
 		this.timer.run()
 
 		const resource = createAudioResource(
-			await this.getOpusStream(this.song.mediaUrl)
+			await this.getOpusStream(this.song.mediaUrl),
+			{ inputType: StreamType.Opus, inlineVolume: false }
 		)
 
 		this.player.play(resource)
