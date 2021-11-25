@@ -95,7 +95,7 @@ export class VoicePlayer {
 
 		const resource = createAudioResource(
 			await this.getOpusStream(this.song.mediaUrl),
-			{ inputType: StreamType.Opus, inlineVolume: false }
+			{ inputType: StreamType.OggOpus, inlineVolume: false }
 		)
 
 		this.player.play(resource)
@@ -110,14 +110,16 @@ export class VoicePlayer {
 			fmtTime(seekTime),
 			"-i",
 			url,
-			"-f",
-			"opus",
-			"-v",
-			"quiet",
-			"-ac",
-			"2",
 			"-ar",
 			"48000",
+			"-ac",
+			"2",
+			"-v",
+			"quiet",
+			"-acodec",
+			"libopus",
+			"-f",
+			"opus",
 			"-",
 		])
 
