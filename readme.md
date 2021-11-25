@@ -7,6 +7,7 @@
 - Missing audio files' duration (direct file source) (_maybe_ won't fix)
 - Corrupted queue storage prevents startup
 - Weird behaviour when seeking from persistence
+- Actually just weird seeking in general, the beginning of songs may be cut off
 
 ## Planned?
 
