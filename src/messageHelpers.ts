@@ -4,7 +4,7 @@ import {
 	embedComponent,
 	ReplyComponent,
 } from "@itsmapleleaf/gatekeeper"
-import { cap, fmtTime, isTruthy, paginate } from "./helpers"
+import { cap, escFmting, fmtTime, isTruthy, paginate } from "./helpers"
 import { Queue } from "./Queue"
 import { Song } from "./Song"
 
@@ -19,9 +19,13 @@ export function createQueueMessage(
 
 	const currentPage = upNext.pages[pageIndex]
 
-	const remainingTime =
+	const remainingTime = Math.max(
 		(nowPlaying ? nowPlaying.duration - queue.currentTime : 0) +
-		queue.upcomingSongs.reduce((p, c) => p + c.duration, 0)
+			queue.upcomingSongs.reduce((p, c) => p + c.duration, 0),
+		0
+	)
+
+	const uncertain = queue.upcomingSongs.some((s) => !s.duration) ? "*" : ""
 
 	let description = ""
 
@@ -61,7 +65,9 @@ export function createQueueMessage(
 						: "") +
 					`${
 						queue.upcomingSongs.length || "No"
-					} songs left  ·  Remaining runtime ${fmtTime(remainingTime)}`,
+					} songs left  ·  Remaining runtime ${fmtTime(
+						remainingTime
+					)}${uncertain}`,
 			},
 		}),
 		currentPage &&
@@ -107,7 +113,9 @@ export function getQueueAddedMessage(
 ): ReplyComponent[] {
 	const songList = songs
 		.slice(0, 5)
-		.map((song, i) => song.stringify({ link: true, index: addedPosition + i }))
+		.map((song, i) =>
+			song.stringify({ link: true, index: addedPosition + i, requester: false })
+		)
 		.join("\n")
 
 	const footer =
@@ -119,6 +127,48 @@ export function getQueueAddedMessage(
 			description: `${songList}`,
 			color: 0x0773e6,
 			footer: footer,
+		}),
+	]
+}
+
+export function getNowPlayingMessage(queue: Queue): ReplyComponent[] {
+	let description = ""
+
+	if (queue.paused) description += "⏸️ "
+
+	const song = queue.currentSong
+	if (!song)
+		return [
+			embedComponent({
+				color: 0x0774e6,
+				description: description + "_Nothing's playin_",
+			}),
+		]
+
+	if (song.uploader) description += `_${escFmting(song.uploader)}_`
+	description += `\n**[${escFmting(song.title)}](${song.pageUrl})**`
+
+	const duration = [
+		queue.currentTime && fmtTime(queue.currentTime),
+		(song.duration && fmtTime(song.duration)) || "??:??",
+	]
+		.filter(isTruthy)
+		.join(" / ")
+	if (duration) description += `\n\`${duration}\``
+
+	description += ` _<@${song.requester}>_`
+
+	return [
+		embedComponent({
+			description,
+			thumbnail: { url: song.thumbnailUrl },
+			color: 0x0774e6,
+			fields: [
+				song.chapters.length > 0 && {
+					name: `${song.chapters.length} Chapters`,
+					value: song.getFormattedChapters(queue.currentTime),
+				},
+			].filter(isTruthy),
 		}),
 	]
 }

@@ -1,9 +1,10 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
+import { cmdName } from "../helpers"
 import { tryGetQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "join",
+		name: cmdName("join"),
 		description: "Join a voice channel and change the active ",
 		run(ctx) {
 			const player = tryGetQueue(ctx)

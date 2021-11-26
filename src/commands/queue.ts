@@ -1,10 +1,11 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
+import { cmdName } from "../helpers"
 import { createQueueMessage } from "../messageHelpers"
 import { tryGetQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "queue",
+		name: cmdName("queue"),
 		description: "List the queue",
 		options: { page: { type: "INTEGER", description: "Queue page" } },
 		run(ctx) {

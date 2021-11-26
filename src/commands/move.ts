@@ -1,9 +1,10 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
+import { cmdName } from "../helpers"
 import { tryGetQueue } from "../queueHandler"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "move",
+		name: cmdName("move"),
 		description: "Move a song in queue to a different position",
 		options: {
 			from: {
