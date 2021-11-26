@@ -2,6 +2,8 @@ import {
 	SlashCommandInteractionContext,
 	SlashCommandOptionConfigMap,
 	Gatekeeper,
+	embedComponent,
+	ReplyHandle,
 } from "@itsmapleleaf/gatekeeper"
 import { tryGetQueue } from "../queueHandler"
 import {
@@ -10,7 +12,9 @@ import {
 	grayButton,
 } from "../messageHelpers"
 import { Song } from "../Song"
-import { checkRequestType, requestYtdl } from "../sourceHandler"
+import { checkRequestType } from "../sourceHandler"
+import { cmdName } from "../helpers"
+import { RequestType } from "../Queue"
 
 const playCommandOptions = {
 	song: { description: "Song to queue", type: "STRING", required: true },
@@ -25,72 +29,88 @@ const playCommandRun = async (
 		SlashCommandOptionConfigMap & typeof playCommandOptions
 	>
 ) => {
-	const player = tryGetQueue(ctx)
-	if (!player) return
+	const queue = tryGetQueue(ctx)
+	if (!queue) return
 
-	ctx.defer()
-
-	const { song: request, position = player.upcomingSongs.length + 1 } =
+	const { song: request, position = queue.upcomingSongs.length + 1 } =
 		ctx.options
 
 	const addedSongs: Song[] = []
 
-	let reqType = checkRequestType(request)
+	const reqType = checkRequestType(request)
 
-	async function resolveRequest(url = request) {
-		if (!player) throw new Error("Missing player")
-		if (!url) throw new Error("Missing request url")
+	let phase: "prompting" | "queuing" | "finished" =
+		reqType === "PlaylistVideo" ? "prompting" : "queuing"
 
-		let queuingPosition = position + player.queuePosition
+	async function processRequest(type: RequestType, replyHandle: ReplyHandle) {
+		if (!queue) throw new Error("Queue is undefined")
+		const result = queue.request(request, ctx.user.id, type, position)
 
-		for await (const metadata of requestYtdl(url)) {
-			const song = Song.fromYtdl(metadata, ctx.user.id)
+		phase = "queuing"
+		const interval = setInterval(() => replyHandle.refresh(), 2000)
+		for await (const song of result) addedSongs.push(song)
 
-			addedSongs.push(song)
-			player.addToQueue(song, queuingPosition)
-			queuingPosition += 1
-		}
+		phase = "finished"
+		clearInterval(interval)
+		replyHandle.refresh()
 	}
-
-	if (reqType != "PlaylistVideo") {
-		ctx.defer()
-		await resolveRequest()
-	}
-
-	let loading = false
 
 	const reply = ctx.reply(() => {
-		if (loading) return "One sec..."
-
-		if (reqType === "PlaylistVideo")
+		if (phase === "prompting") {
 			return [
-				"This video belongs to a playlist, do you want me to queue **the whole playlist** or **just this one video**?",
+				embedComponent({
+					description:
+						"This video belongs to a playlist, do you want me to queue **the whole playlist** or **just this one video**?",
+					color: 0x0774e6,
+				}),
 				accentButton("The whole playlist", async (buttonCtx) => {
 					buttonCtx.defer()
-					reqType = "Playlist"
-					loading = true
-					reply.refresh()
-					await resolveRequest(
-						request.replace(/v=[^&]+&/, "").replace("/watch", "/playlist")
-					)
-					loading = false
-					reply.refresh()
+					processRequest("Playlist", reply)
 				}),
 				accentButton("Just this one video", async (buttonCtx) => {
 					buttonCtx.defer()
-					reqType = "Video"
-					loading = true
-					reply.refresh()
-					await resolveRequest(request.replace(/&list=.*$/, ""))
-					loading = false
-					reply.refresh()
+					processRequest("Video", reply)
 				}),
 				grayButton("Cancel", async () => reply.delete()),
 			]
+		}
 
-		if (addedSongs.length < 1) return "Failed to get any songs to add to queue"
-		return getQueueAddedMessage(addedSongs, position)
+		if (phase === "queuing") {
+			const songList = addedSongs
+				.map((song, i) =>
+					song.stringify({
+						index: i + position,
+						uploader: false,
+						requester: false,
+					})
+				)
+				.slice(-5)
+				.join("\n")
+
+			return [
+				embedComponent({
+					author: {
+						name: "Queuing...",
+						icon_url:
+							"https://cdn.discordapp.com/emojis/675548186672234519.gif",
+					},
+					description: songList,
+					color: 0x0774e6,
+				}),
+			]
+		}
+
+		if (phase === "finished") return getQueueAddedMessage(addedSongs, position)
+
+		return [
+			embedComponent({
+				description: "<a:time:675548186672234519> _Hold on..._",
+				color: 0x0774e6,
+			}),
+		]
 	})
+
+	if (reqType !== "PlaylistVideo") processRequest(reqType, reply)
 }
 
 export default function defineCommands(gatekeeper: Gatekeeper) {

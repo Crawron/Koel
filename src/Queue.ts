@@ -9,6 +9,7 @@ import {
 import { djsClient } from "./clients"
 import { cap, move, shuffle } from "./helpers"
 import { Song } from "./Song"
+import { requestYtdl } from "./sourceHandler"
 import { deleteQueue, QueueData, saveQueue } from "./storage"
 import { VoicePlayer } from "./VoicePlayer"
 
@@ -45,9 +46,9 @@ export class Queue {
 	}
 
 	destroy() {
-		this.player.destroy()
 		this.disposeCallbacks.forEach((cb) => cb())
 		deleteQueue(this.guildId)
+		this.player.disconnect()
 	}
 
 	static fromData(data: QueueData) {
@@ -120,8 +121,28 @@ export class Queue {
 		saveQueue(this.toData())
 	}
 
-	addToQueue(song: Song, position = this.list.length) {
-		this.list.splice(position, 0, song)
+	async *request(
+		query: string,
+		requester: string,
+		type: RequestType,
+		position = 0
+	) {
+		const forceSingle = type === "Video"
+
+		const results = requestYtdl(query, 1, forceSingle)
+
+		for await (const songMetadata of results) {
+			const song = Song.fromYtdl(songMetadata, requester)
+			this.list.splice(position, 0, song)
+			position += 1
+			yield song
+		}
+	}
+
+	/** Position relative to the current queue position */
+	addToQueue(song: Song, position = 0) {
+		this.list.splice(this.queuePosition - position, 0, song)
+		if (position < 0) this.queuePosition += 1
 		saveQueue(this.toData())
 	}
 

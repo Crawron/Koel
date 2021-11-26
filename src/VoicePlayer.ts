@@ -43,14 +43,6 @@ export class VoicePlayer {
 		})
 	}
 
-	destroy() {
-		if (this.connection) {
-			this.connection.disconnect()
-			this.connection.destroy()
-			this.connection = null
-		}
-	}
-
 	connect(channel: VoiceChannel | StageChannel) {
 		this.disconnect()
 

@@ -1,18 +1,26 @@
 import execa from "execa"
 import ytdl from "ytdl-core"
-import { safeJsonParse } from "./helpers"
+import { isTruthy, safeJsonParse } from "./helpers"
 import { RequestType } from "./Queue"
 
-export async function* requestYtdl(request: string) {
-	const ytdlProcess = execa("youtube-dl", [
-		"--default-search",
-		"ytsearch",
-		"-f",
-		"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best[height<=480p]/worst",
-		"-s",
-		"--dump-json",
-		request,
-	])
+export async function* requestYtdl(
+	request: string,
+	searchLength = 1,
+	forceSingle = false
+) {
+	const ytdlProcess = execa(
+		"youtube-dl",
+		[
+			"--default-search",
+			`ytsearch${searchLength}:`,
+			"-f",
+			forceSingle && "--no-playlist",
+			"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best[height<=480p]/worst",
+			"-s",
+			"--dump-json",
+			request,
+		].filter(isTruthy)
+	)
 
 	if (!ytdlProcess.stdout) throw new Error("youtube-dl process stdout is null")
 
