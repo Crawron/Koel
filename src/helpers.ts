@@ -127,3 +127,7 @@ export function debounce<Args extends unknown[]>(
 export function cmdName(name: string) {
 	return process.env.NODE_ENV === "production" ? name : `char-${name}`
 }
+
+export function randomItem<T>(arr: T[]) {
+	return arr[Math.floor(Math.random() * arr.length)]
+}
