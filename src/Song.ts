@@ -1,7 +1,11 @@
 import { Snowflake } from "discord.js"
 import { escFmting, fmtTime, focusOn, isTruthy, twoDigits } from "./helpers"
 import { SongData } from "./storage"
-import { YtdlMetadata } from "./sourceHandler"
+import {
+	requestYtdlServer,
+	YtdlMetadata,
+	YtdlServerResponse,
+} from "./sourceHandler"
 
 export class Song {
 	constructor(
@@ -13,8 +17,35 @@ export class Song {
 		public mediaUrl: string,
 		public uploader: string | undefined,
 		public source: string,
-		public chapters: { title: string; startTime: number }[] = []
+		public chapters: { title: string; start: number }[] = []
 	) {}
+
+	static async fromServer(
+		song: YtdlServerResponse["results"][number],
+		requester: Snowflake
+	): Promise<Song> {
+		if (!song.partial) {
+			const newSong = new Song(
+				song.title,
+				requester,
+				(song.duration ?? 0) * 1000,
+				song.thumbnail,
+				song.page_url,
+				song.media_url,
+				song.uploader,
+				song.extractor,
+				song.chapters
+			)
+			return newSong
+		}
+
+		const response = await requestYtdlServer(song.page_url, "Video")
+
+		if (response.partial) throw new Error("Failed to get full metadata")
+		if (!response.results[0]) throw new Error("Failed to get full metadata")
+
+		return Song.fromServer(response.results[0], requester)
+	}
 
 	static fromYtdl(ytdlMeta: YtdlMetadata, requester: Snowflake): Song {
 		const {
@@ -39,7 +70,7 @@ export class Song {
 			uploader,
 			extractor_key,
 			chapters.map((chapter) => ({
-				startTime: chapter.start_time * 1000,
+				start: chapter.start_time * 1000,
 				title: chapter.title,
 			}))
 		)
@@ -91,7 +122,7 @@ export class Song {
 		if (!this.chapters) return "_none_"
 
 		const currentChapterIndex =
-			this.chapters.findIndex((chapter) => chapter.startTime > currentTime) - 1
+			this.chapters.findIndex((chapter) => chapter.start > currentTime) - 1
 
 		const { items, focusPivot, startIndex } = focusOn(
 			this.chapters,
@@ -102,7 +133,7 @@ export class Song {
 		return items
 			.map((chapter, i) => {
 				const text = `\`${twoDigits(i + startIndex + 1)}\` \`${fmtTime(
-					chapter.startTime
+					chapter.start
 				)}\` ${escFmting(chapter.title)}`
 
 				return i === focusPivot ? `**${text}**` : text

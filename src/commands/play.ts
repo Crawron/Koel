@@ -10,7 +10,12 @@ import {
 	grayButton,
 } from "../messageHelpers"
 import { Song } from "../Song"
-import { checkRequestType } from "../sourceHandler"
+import {
+	checkRequestType,
+	requestYtdlServer,
+	YtdlServerPartialResults,
+	YtdlServerResponse,
+} from "../sourceHandler"
 import { cmdName } from "../helpers"
 import { RequestType } from "../Queue"
 
@@ -35,6 +40,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			const { song: request, position = queue.upcomingSongs.length + 1 } =
 				ctx.options
 
+			const discoveredSongs: YtdlServerResponse["results"][number][] = []
 			const addedSongs: Song[] = []
 
 			const reqType = checkRequestType(request)
@@ -47,11 +53,17 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 				replyHandle: ReplyHandle
 			) {
 				if (!queue) throw new Error("Queue is undefined")
-				const result = queue.request(request, ctx.user.id, type, position)
+				const response = await requestYtdlServer(request, type)
 
 				phase = "queuing"
 				const interval = setInterval(() => replyHandle.refresh(), 2000)
-				for await (const song of result) addedSongs.push(song)
+				discoveredSongs.push(...response.results)
+
+				for (const song of response.results) {
+					const newSong = await Song.fromServer(song, ctx.user.id)
+					addedSongs.push(newSong)
+					queue.addToQueue([newSong], position)
+				}
 
 				phase = "finished"
 				clearInterval(interval)

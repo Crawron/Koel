@@ -17,7 +17,7 @@ export type SongData = {
 	requester: Snowflake
 	chapters: {
 		title: string
-		startTime: number
+		start: number
 	}[]
 }
 

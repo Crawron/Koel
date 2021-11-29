@@ -9,7 +9,7 @@ import {
 import { djsClient } from "./clients"
 import { cap, move, shuffle } from "./helpers"
 import { Song } from "./Song"
-import { requestYtdl } from "./sourceHandler"
+import { requestYtdlServer } from "./sourceHandler"
 import { deleteQueue, QueueData, saveQueue } from "./storage"
 import { VoicePlayer } from "./VoicePlayer"
 
@@ -121,27 +121,27 @@ export class Queue {
 		saveQueue(this.toData())
 	}
 
-	async *request(
-		query: string,
-		requester: string,
-		type: RequestType,
-		position = 0
-	) {
-		const forceSingle = type === "Video"
+	// async *request(
+	// 	query: string,
+	// 	requester: string,
+	// 	type: RequestType,
+	// 	position = 0
+	// ) {
+	// 	const forceSingle = type === "Video"
 
-		const results = requestYtdl(query, 1, forceSingle)
+	// 	const results = await requestYtdlServer(query, type)
 
-		for await (const songMetadata of results) {
-			const song = Song.fromYtdl(songMetadata, requester)
-			this.list.splice(position, 0, song)
-			position += 1
-			yield song
-		}
-	}
+	// 	for await (const songMetadata of results) {
+	// 		const song = Song.fromYtdl(songMetadata, requester)
+	// 		this.list.splice(position, 0, song)
+	// 		position += 1
+	// 		yield song
+	// 	}
+	// }
 
 	/** Position relative to the current queue position */
-	addToQueue(song: Song, position = 0) {
-		this.list.splice(this.queuePosition - position, 0, song)
+	addToQueue(songs: Song[], position = 0) {
+		this.list.splice(this.queuePosition - position, 0, ...songs)
 		if (position < 0) this.queuePosition += 1
 		saveQueue(this.toData())
 	}
