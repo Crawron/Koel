@@ -2,7 +2,7 @@ lockfileVersion: 5.3
 
 specifiers:
   '@discordjs/voice': ^0.6.0
-  '@itsmapleleaf/gatekeeper': ^0.6.1
+  '@itsmapleleaf/gatekeeper': ^0.8.0
   '@types/ffmpeg-static': ^3.0.0
   '@types/jest': ^27.0.2
   '@types/jsonfile': ^6.0.1
@@ -40,7 +40,7 @@ specifiers:
 
 dependencies:
   '@discordjs/voice': 0.6.0_c7ee0d186dd72f3a8db2ce4bc2fe7975
-  '@itsmapleleaf/gatekeeper': 0.6.1_discord.js@13.1.0
+  '@itsmapleleaf/gatekeeper': 0.8.0_discord.js@13.1.0
   bufferutil: 4.0.3
   chalk: 4.1.2
   discord.js: 13.1.0_72ef9f06cb99540da679cbf1bf7a3256
@@ -712,8 +712,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /@itsmapleleaf/gatekeeper/0.6.1_discord.js@13.1.0:
-    resolution: {integrity: sha512-prb4Tp9Duz6lPzB9o29olzQ/MmX2527sryjqMmanBLL806leSue1ulbXKFXvF3Q/q6hR3m7dt9fUxI/o6BCs3g==}
+  /@itsmapleleaf/gatekeeper/0.8.0_discord.js@13.1.0:
+    resolution: {integrity: sha512-3O8p/58dt7nVJj4N9MzJYcV3FwpoGWGGXeDAlU+srr7i3EqPKrBCQcb92x2ZrNg0DMu8tlFNoKfODhVZCqHOCQ==}
     peerDependencies:
       discord.js: '>=13'
     dependencies:

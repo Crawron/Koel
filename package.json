@@ -29,7 +29,7 @@
 	},
 	"dependencies": {
 		"@discordjs/voice": "^0.6.0",
-		"@itsmapleleaf/gatekeeper": "^0.6.1",
+		"@itsmapleleaf/gatekeeper": "^0.8.0",
 		"bufferutil": "^4.0.3",
 		"chalk": "^4.1.2",
 		"discord.js": "^13.1.0",

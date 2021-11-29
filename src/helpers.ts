@@ -124,6 +124,13 @@ export function debounce<Args extends unknown[]>(
 	}
 }
 
-export function cmdName(name: string) {
-	return process.env.NODE_ENV === "production" ? name : `char-${name}`
+export function cmdName<T extends string | string[]>(names: T): T {
+	if (Array.isArray(names))
+		return names.map((name) =>
+			process.env.NODE_ENV === "production" ? name : `char-${name}`
+		) as T
+	else
+		return process.env.NODE_ENV === "production"
+			? names
+			: (`char-${names}` as T)
 }
