@@ -1,4 +1,4 @@
-import { embedComponent, Gatekeeper } from "@itsmapleleaf/gatekeeper"
+import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
 import { cmdName } from "../../helpers"
 import { controllerStore } from "../../stores/controllerStore"
 import { guildCheck } from "../common"
