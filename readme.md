@@ -1,4 +1,6 @@
-## To work on next
+# ⚠ ☣ 🐦 Currently working on huge refactor
+
+The entire internal structure is being reorganized/rewritten. So commits are gonna be chunky and weird.
 
 ## Bugs
 
