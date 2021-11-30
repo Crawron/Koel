@@ -15,6 +15,13 @@ export class Queue {
 		})
 	}
 
+	serialize() {
+		return {
+			list: this.list.map((song) => song.serialize()),
+			listPivot: this.listPivot,
+		}
+	}
+
 	/** list index of the current song */
 	get listPivot() {
 		return this._listPivot

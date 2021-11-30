@@ -39,6 +39,20 @@ export class Song {
 		this.chapters = options.chapters
 	}
 
+	serialize() {
+		return {
+			title: this.title,
+			chapters: this.chapters,
+			duration: this.duration,
+			mediaUrl: this.mediaUrl,
+			requester: this.requester,
+			source: this.source,
+			pageUrl: this.pageUrl,
+			thumbnailUrl: this.thumbnailUrl,
+			uploader: this.uploader,
+		}
+	}
+
 	static async fromServer(
 		song: YtdlServerResponse["results"][number],
 		requester: Snowflake

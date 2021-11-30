@@ -24,4 +24,11 @@ export class Controller {
 			onError: (error) => log(error, LogLevel.Error),
 		})
 	}
+
+	serialize() {
+		return {
+			queue: this.queue.serialize(),
+			player: this.player.serialize(),
+		}
+	}
 }

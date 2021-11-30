@@ -45,6 +45,14 @@ export class Player {
 		})
 	}
 
+	serialize() {
+		return {
+			song: this._song,
+			timer: this.timer.time,
+			paused: this.paused,
+		}
+	}
+
 	get isIdle() {
 		return this._song === null
 	}
