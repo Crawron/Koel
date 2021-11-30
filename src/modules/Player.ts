@@ -83,11 +83,7 @@ export class Player {
 
 		const process = execa.command(`ffmpeg ${args}`)
 
-		process.on("error", (error) => {
-			this.onError?.(error)
-		})
-
-		process.stdout?.on("data", (data) => log(data, LogLevel.Debug))
+		process.catch((data) => log(data, LogLevel.Error))
 
 		return process.stdout ?? undefined
 	}
