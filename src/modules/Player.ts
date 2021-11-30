@@ -71,7 +71,7 @@ export class Player {
 
 	private getFfmpegStream(song: Song) {
 		const args = [
-			"-hide_banner -loglevel error",
+			"-hide_banner -loglevel fatal",
 			`-ss ${this.timer.time / 1000}`, // seek
 			`-i ${song.mediaUrl}`, // input
 			"-ar 48000", // audio sample rate
