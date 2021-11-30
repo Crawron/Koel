@@ -72,10 +72,12 @@ export class Queue {
 	/** Songs in the `to` position get shifted down
 	 * @param from Position to move from, relative to listPivot
 	 * @param to Position to move to, relative to listPivot
+	 * @returns Songs moved
 	 */
 	move(from: number, to: number) {
 		const songs = this.remove(from)
 		this.add(songs, to)
+		return songs
 	}
 
 	/** Shuffle only upcomming songs in the list */
