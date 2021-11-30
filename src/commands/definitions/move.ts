@@ -1,11 +1,11 @@
 import { embedComponent, Gatekeeper } from "@itsmapleleaf/gatekeeper"
-import { twoDigits } from "../../helpers"
+import { cmdName, twoDigits } from "../../helpers"
 import { controllerStore } from "../../stores/controllerStore"
 import { guildCheck } from "../common"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "move",
+		name: cmdName("move"),
 		description: "Move a song in the queue",
 		options: {
 			from: {

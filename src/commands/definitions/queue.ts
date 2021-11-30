@@ -1,12 +1,12 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
-import { cap } from "../../helpers"
+import { cap, cmdName } from "../../helpers"
 import { controllerStore } from "../../stores/controllerStore"
 import { guildCheck } from "../common"
 import { messagefyQueue } from "../messageHelpers"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
-		name: "queue",
+		name: cmdName("queue"),
 		description: "View the current queue",
 		aliases: ["q"],
 		options: {
