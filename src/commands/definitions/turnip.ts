@@ -9,6 +9,8 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 		name: cmdName("turnip"),
 		description: "turn up",
 		run: async (ctx) => {
+			ctx.defer()
+
 			if (!guildCheck(ctx, ctx.guild)) return
 
 			const controller = controllerStore.getOrCreate(ctx.guild.id)
@@ -20,7 +22,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 					pageUrl: "https://www.youtube.com/watch?v=tx2LXzM-Q2A",
 					chapters: [],
 					mediaUrl:
-						"https://cdn.discordapp.com/attachments/722981100762300427/915066449737969674/turni.mp3",
+						"https://cdn.discordapp.com/attachments/722981100762300427/915066449737969674/turnip.mp3",
 					requester: "895479648077631520",
 					source: "youtube",
 					duration: 24000,
