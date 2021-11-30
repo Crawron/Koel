@@ -3,7 +3,8 @@ import {
 	embedComponent,
 	ReplyComponent,
 } from "@itsmapleleaf/gatekeeper"
-import { cap, fmtTime, isTruthy, paginate } from "../helpers"
+import { cap, escFmting, fmtTime, isTruthy, paginate } from "../helpers"
+import { Controller } from "../modules/Controller"
 import { Player } from "../modules/Player"
 import { Queue } from "../modules/Queue"
 
@@ -105,4 +106,48 @@ export function messagefyQueue(
 				onClick: () => onPageChange(upNext.pageCount),
 			}),
 	].filter(isTruthy)
+}
+
+export function getNowPlayingMessage(controller: Controller): ReplyComponent[] {
+	let description = ""
+
+	const { player, queue } = controller
+
+	if (player.paused) description += "⏸️ "
+
+	const song = queue.current
+	if (!song)
+		return [
+			embedComponent({
+				color: 0x0774e6,
+				description: description + "_Nothing's playin_",
+			}),
+		]
+
+	if (song.uploader) description += `_${escFmting(song.uploader)}_`
+	description += `\n**[${escFmting(song.title)}](${song.pageUrl})**`
+
+	const duration = [
+		player.timer.time && fmtTime(player.timer.time),
+		(song.duration && fmtTime(song.duration)) || "??:??",
+	]
+		.filter(isTruthy)
+		.join(" / ")
+	if (duration) description += `\n\`${duration}\``
+
+	description += ` _<@${song.requester}>_`
+
+	return [
+		embedComponent({
+			description,
+			thumbnail: { url: song.thumbnailUrl },
+			color: 0x0774e6,
+			fields: [
+				song.chapters.length > 0 && {
+					name: `${song.chapters.length} Chapters`,
+					value: song.getFormattedChapters(player.timer.time),
+				},
+			].filter(isTruthy),
+		}),
+	]
 }
