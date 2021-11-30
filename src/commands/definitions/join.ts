@@ -7,7 +7,7 @@ import { guildCheck, memberCheck, voiceChannelCheck } from "../common"
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: cmdName("join"),
-		description: "Create a new map",
+		description: "Join a voice channel",
 		options: {
 			vc: {
 				description:
