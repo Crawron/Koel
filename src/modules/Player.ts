@@ -21,7 +21,7 @@ export class Player {
 	timer = new Timer()
 	retryCount = 0
 
-	onError?: (error: Error) => void
+	onError?: (error: unknown) => void
 	onSongEnd?: () => void
 
 	player: DjsAudioPlayer
@@ -50,7 +50,7 @@ export class Player {
 	}
 
 	setHandlers(handlers: {
-		onError?: (error: Error) => void
+		onError?: (error: unknown) => void
 		onSongEnd?: () => void
 	}) {
 		if (handlers.onError) this.onError = handlers.onError
@@ -123,18 +123,17 @@ export class Player {
 				resource = await this.getFfmpegStream(this._song)
 				break
 			} catch (error) {
-				log(String(error), LogLevel.Error)
+				this.onError?.(error)
 			}
 
 			// TODO: refetch song media url
-			log(`Retrying stream for ${this._song.title}`, LogLevel.Warning)
 			this.retryCount += 1
 		}
 		this.retryCount = 0
 
 		if (!resource) {
-			log(`Failed to get stream for ${this._song.title}`, LogLevel.Error)
-			throw new Error(`Couldn't get stream for ${this._song.title}`)
+			this.onError?.(new Error("Failed to get stream"))
+			return
 		}
 
 		this.player.play(resource)
