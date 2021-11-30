@@ -70,7 +70,7 @@ export class Player {
 		this.runStream()
 	}
 
-	joinChannel(channel: VoiceChannel | StageChannel) {
+	connect(channel: VoiceChannel | StageChannel) {
 		const connection = joinVoiceChannel({
 			adapterCreator: channel.guild.voiceAdapterCreator,
 			channelId: channel.id,

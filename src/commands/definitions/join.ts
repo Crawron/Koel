@@ -28,7 +28,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			if (!voiceChannelCheck(ctx, vc)) return
 
-			controller.player.joinChannel(vc)
+			controller.player.connect(vc)
 
 			ctx.reply(() => `Joined <#${vc.id}>`)
 		},
