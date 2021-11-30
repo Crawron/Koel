@@ -134,3 +134,12 @@ export function cmdName<T extends string | string[]>(names: T): T {
 			? names
 			: (`char-${names}` as T)
 }
+
+export function zip<T extends unknown>(...arrays: T[][]): T[] {
+	const longestLength = Math.max(...arrays.map((a) => a.length))
+	return Array.from({ length: longestLength }, (_, i) =>
+		arrays.map((a) => a[i])
+	)
+		.flat()
+		.filter((a): a is T => a !== undefined)
+}

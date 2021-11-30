@@ -17,19 +17,19 @@ const commandMode = process.env.COMMANDMODE ?? "guild"
 	await Gatekeeper.create({
 		name: "Koel",
 		client: djsClient,
-		commandFolder: path.join(__dirname, "commands"),
+		commandFolder: path.join(__dirname, "commands/definitions"),
 		logging: true,
 	})
 
-	djsClient.on("ready", async () => {
-		log(`Ready. Connected to ${bold(djsClient.user?.username)}`)
-		log(`Using ${bold(commandMode)} commands`)
+	// djsClient.on("ready", async () => {
+	// log(`Ready. Connected to ${bold(djsClient.user?.username)}`)
+	// log(`Using ${bold(commandMode)} commands`)
 
-		const storage = await getQueueStorage()
-		log(storage.length, 0)
-		loadQueues(storage)
-		log(`Loaded queues`)
-	})
+	// const storage = await getQueueStorage()
+	// log(storage.length, 0)
+	// loadQueues(storage)
+	// log(`Loaded queues`)
+	// })
 
 	djsClient
 		.login(process.env.KOELTOKEN)

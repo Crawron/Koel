@@ -7,7 +7,7 @@ import {
 	grayButton,
 } from "../messageHelpers"
 import { tryGetQueue } from "../queueHandler"
-import { Song } from "../Song"
+import { Song } from "../modules/Song"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({

@@ -8,7 +8,7 @@ import {
 } from "mobx"
 import { djsClient } from "./clients"
 import { cap, move, shuffle } from "./helpers"
-import { Song } from "./Song"
+import { Song } from "./modules/Song"
 import { requestYtdlServer } from "./sourceHandler"
 import { deleteQueue, QueueData, saveQueue } from "./storage"
 import { VoicePlayer } from "./VoicePlayer"
@@ -61,7 +61,7 @@ export class Queue {
 		}
 
 		runInAction(
-			() => (queue.list = data.list.map((song) => Song.fromData(song)))
+			() => (queue.list = data.list.map((song) => Song.fromStorage(song)))
 		)
 		queue.queuePosition = data.queuePosition
 		queue.currentTime = data.playedTime
@@ -76,7 +76,7 @@ export class Queue {
 			playedTime: this.player.playedTime,
 			voiceChannel: this.player.voiceChannelId,
 			queuePosition: this.queuePosition,
-			list: this.list.map((song) => song.toData()),
+			list: this.list.map((song) => song.toStore()),
 		}
 	}
 

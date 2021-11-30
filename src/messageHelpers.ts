@@ -6,7 +6,7 @@ import {
 } from "@itsmapleleaf/gatekeeper"
 import { cap, escFmting, fmtTime, isTruthy, paginate } from "./helpers"
 import { Queue } from "./Queue"
-import { Song } from "./Song"
+import { Song } from "./modules/Song"
 
 export function createQueueMessage(
 	queue: Queue,

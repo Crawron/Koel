@@ -6,24 +6,9 @@ import { unlink } from "fs/promises"
 import { log } from "./logging"
 import { debounce } from "./helpers"
 
-export type SongData = {
-	title: string
-	mediaUrl: string
-	pageUrl: string
-	source: string
-	duration: number
-	thumbnailUrl?: string
-	uploader?: string
-	requester: Snowflake
-	chapters: {
-		title: string
-		start: number
-	}[]
-}
-
 export type QueueData = {
 	id: Snowflake
-	list: SongData[]
+	list: SongStore[]
 	queuePosition: number
 	paused: boolean
 	voiceChannel?: Snowflake

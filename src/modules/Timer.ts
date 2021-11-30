@@ -24,20 +24,20 @@ export class Timer {
 		return this.startingTime != null
 	}
 
-	/** Time since the last time the times started running */
-	private get timeDelta() {
-		if (!this.startingTime) return 0
-		return Date.now() - this.startingTime
-	}
-
 	/** Elapsed time since first run, excluding paused time */
 	get time() {
 		return this.accumulatedTime + this.timeDelta
 	}
 
-	/** ... or arbitrarily set timer to a specific value. **In milliseconds** */
+	/** or arbitrarily set timer to a specific value. **In milliseconds** */
 	set time(time: number) {
 		this.accumulatedTime = time
 		if (this.isRunning) this.startingTime = Date.now()
+	}
+
+	/** Time since the last time the timer started running */
+	private get timeDelta() {
+		if (!this.startingTime) return 0
+		return Date.now() - this.startingTime
 	}
 }

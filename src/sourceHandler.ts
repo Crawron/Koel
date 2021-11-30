@@ -26,7 +26,7 @@ export type YtdlServerPartialResults = {
 	partial: true
 	results: {
 		partial: true
-		page_url: string
+		pageUrl: string
 		title?: string
 		duration?: number
 		uploader?: string
@@ -38,8 +38,8 @@ export type YtdlServerResults = {
 	results: {
 		partial: false
 		title: string
-		media_url: string
-		page_url: string
+		mediaUrl: string
+		pageUrl: string
 		thumbnail?: string
 		duration?: number
 		chapters: {
@@ -47,7 +47,7 @@ export type YtdlServerResults = {
 			title: string
 		}[]
 		uploader?: string
-		extractor: string
+		source: string
 	}[]
 }
 

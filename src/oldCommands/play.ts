@@ -9,7 +9,7 @@ import {
 	getQueueAddedMessage,
 	grayButton,
 } from "../messageHelpers"
-import { Song } from "../Song"
+import { Song } from "../modules/Song"
 import {
 	checkRequestType,
 	requestYtdlServer,

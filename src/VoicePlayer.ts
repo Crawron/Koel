@@ -11,8 +11,8 @@ import { StageChannel, VoiceChannel } from "discord.js"
 import execa from "execa"
 import { makeAutoObservable } from "mobx"
 import { fmtTime } from "./helpers"
-import { Song } from "./Song"
-import { Timer } from "./Timer"
+import { Song } from "./modules/Song"
+import { Timer } from "./modules/Timer"
 
 export class VoicePlayer {
 	private connection: VoiceConnection | null = null

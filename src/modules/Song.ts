@@ -1,45 +1,51 @@
 import { Snowflake } from "discord.js"
-import { escFmting, fmtTime, focusOn, isTruthy, twoDigits } from "./helpers"
-import { SongData } from "./storage"
+import { escFmting, fmtTime, focusOn, isTruthy, twoDigits } from "../helpers"
 import {
 	requestYtdlServer,
 	YtdlMetadata,
 	YtdlServerResponse,
-} from "./sourceHandler"
+} from "../sourceHandler"
 
 export class Song {
-	constructor(
-		public title: string,
-		public requester: Snowflake,
-		public duration: number,
-		public thumbnailUrl: string | undefined,
-		public pageUrl: string,
-		public mediaUrl: string,
-		public uploader: string | undefined,
-		public source: string,
-		public chapters: { title: string; start: number }[] = []
-	) {}
+	title: string
+	requester: Snowflake
+	duration?: number
+	thumbnailUrl?: string
+	pageUrl: string
+	mediaUrl: string
+	uploader?: string
+	source: string
+	chapters: { title: string; start: number }[] = []
+
+	constructor(options: {
+		title: string
+		requester: Snowflake
+		duration?: number
+		thumbnailUrl?: string
+		pageUrl: string
+		mediaUrl: string
+		uploader?: string
+		source: string
+		chapters: { title: string; start: number }[]
+	}) {
+		this.title = options.title
+		this.requester = options.requester
+		this.duration = options.duration
+		this.thumbnailUrl = options.thumbnailUrl
+		this.pageUrl = options.pageUrl
+		this.mediaUrl = options.mediaUrl
+		this.uploader = options.uploader
+		this.source = options.source
+		this.chapters = options.chapters
+	}
 
 	static async fromServer(
 		song: YtdlServerResponse["results"][number],
 		requester: Snowflake
 	): Promise<Song> {
-		if (!song.partial) {
-			const newSong = new Song(
-				song.title,
-				requester,
-				(song.duration ?? 0) * 1000,
-				song.thumbnail,
-				song.page_url,
-				song.media_url,
-				song.uploader,
-				song.extractor,
-				song.chapters
-			)
-			return newSong
-		}
+		if (!song.partial) return new Song({ ...song, requester })
 
-		const response = await requestYtdlServer(song.page_url, "Video")
+		const response = await requestYtdlServer(song.pageUrl, "Video")
 
 		if (response.partial) throw new Error("Failed to get full metadata")
 		if (!response.results[0]) throw new Error("Failed to get full metadata")
@@ -76,7 +82,7 @@ export class Song {
 		)
 	}
 
-	static fromData(data: SongData): Song {
+	static fromStorage(data: SongStore): Song {
 		const {
 			title,
 			chapters,
@@ -102,8 +108,8 @@ export class Song {
 		)
 	}
 
-	toData(): SongData {
-		const data: SongData = {
+	toStore(): SongStore {
+		const data: SongStore = {
 			title: this.title,
 			pageUrl: this.pageUrl,
 			mediaUrl: this.mediaUrl,
@@ -179,4 +185,19 @@ export class Song {
 
 		return result
 	}
+}
+
+export type SongStore = {
+	title: string
+	mediaUrl: string
+	pageUrl: string
+	source: string
+	duration: number
+	thumbnailUrl?: string
+	uploader?: string
+	requester: Snowflake
+	chapters: {
+		title: string
+		start: number
+	}[]
 }
