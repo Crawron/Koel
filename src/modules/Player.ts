@@ -45,6 +45,14 @@ export class Player {
 		})
 	}
 
+	get isIdle() {
+		return this._song === null
+	}
+
+	get isConnected() {
+		return this.voiceConnection != null
+	}
+
 	private get voiceConnection() {
 		return getVoiceConnection(this.guildId)
 	}
@@ -62,12 +70,57 @@ export class Player {
 		this.runStream()
 	}
 
-	get isIdle() {
-		return this._song === null
+	joinChannel(channel: VoiceChannel | StageChannel) {
+		const connection = joinVoiceChannel({
+			adapterCreator: channel.guild.voiceAdapterCreator,
+			channelId: channel.id,
+			guildId: channel.guild.id,
+			selfDeaf: false,
+		})
+		connection.subscribe(this.player)
 	}
 
-	get isConnected() {
-		return this.voiceConnection != null
+	resume() {
+		this.timer.run()
+		this.paused = false
+		this.player.unpause()
+	}
+
+	pause() {
+		this.timer.pause()
+		this.paused = true
+		this.player.pause()
+	}
+
+	togglePause() {
+		if (this.paused) this.resume()
+		else this.pause()
+	}
+
+	private async runStream() {
+		if (this.paused) return
+		if (!this._song) return
+
+		let resource: AudioResource | null = null
+		while (this.retryCount <= this.maxRetries) {
+			try {
+				resource = await this.getFfmpegStream(this._song)
+				break
+			} catch (error) {
+				this.onError?.(error)
+			}
+
+			// TODO: refetch song media url
+			this.retryCount += 1
+		}
+		this.retryCount = 0
+
+		if (!resource) {
+			this.onError?.(new Error("Failed to get stream"))
+			return
+		}
+
+		this.player.play(resource)
 	}
 
 	private getFfmpegStream(song: Song) {
@@ -111,53 +164,5 @@ export class Player {
 				if (process.stdout) resolve(resouce)
 			})
 		})
-	}
-
-	private async runStream() {
-		if (this.paused) return
-		if (!this._song) return
-
-		let resource: AudioResource | null = null
-		while (this.retryCount <= this.maxRetries) {
-			try {
-				resource = await this.getFfmpegStream(this._song)
-				break
-			} catch (error) {
-				this.onError?.(error)
-			}
-
-			// TODO: refetch song media url
-			this.retryCount += 1
-		}
-		this.retryCount = 0
-
-		if (!resource) {
-			this.onError?.(new Error("Failed to get stream"))
-			return
-		}
-
-		this.player.play(resource)
-	}
-
-	pause() {
-		this.timer.pause()
-		this.paused = true
-		this.player.pause()
-	}
-
-	resume() {
-		this.timer.run()
-		this.paused = false
-		this.player.unpause()
-	}
-
-	joinChannel(channel: VoiceChannel | StageChannel) {
-		const connection = joinVoiceChannel({
-			adapterCreator: channel.guild.voiceAdapterCreator,
-			channelId: channel.id,
-			guildId: channel.guild.id,
-			selfDeaf: false,
-		})
-		connection.subscribe(this.player)
 	}
 }
