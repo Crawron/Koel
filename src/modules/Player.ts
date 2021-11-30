@@ -133,6 +133,7 @@ export class Player {
 			adapterCreator: channel.guild.voiceAdapterCreator,
 			channelId: channel.id,
 			guildId: channel.guild.id,
+			selfDeaf: false,
 		})
 		connection.subscribe(this.player)
 	}
