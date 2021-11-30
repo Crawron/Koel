@@ -10,6 +10,7 @@ import {
 	NoSubscriberBehavior,
 	StreamType,
 	AudioPlayerStatus,
+	AudioResource,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
 import { log, LogLevel } from "../logging"
@@ -70,46 +71,73 @@ export class Player {
 	}
 
 	private getFfmpegStream(song: Song) {
-		const args = [
-			"-hide_banner -loglevel fatal",
-			`-ss ${this.timer.time / 1000}`, // seek
-			`-i ${song.mediaUrl}`, // input
-			"-ar 48000", // audio sample rate
-			"-ac 2", // audio channels
-			"-acodec libopus", // audio codec
-			"-f opus", // output format
-			"-", // output to stdout
-		].join(" ")
+		return new Promise<AudioResource>((resolve, reject) => {
+			const args = [
+				"-hide_banner -loglevel error",
+				`-ss ${this.timer.time / 1000}`, // seek
+				`-i ${song.mediaUrl}`, // input
+				"-ar 48000", // audio sample rate
+				"-ac 2", // audio channels
+				"-acodec libopus", // audio codec
+				"-f opus", // output format
+				"-", // output to stdout
+			].join(" ")
 
-		const process = execa.command(`ffmpeg ${args}`)
+			let resolved = false
 
-		process.catch((data) => log(data, LogLevel.Error))
+			const process = execa.command(`ffmpeg ${args}`, {
+				buffer: true,
+				windowsHide: false,
+			})
 
-		return process.stdout ?? undefined
+			process.catch((error) => {
+				if (resolved) {
+					log(error.message, LogLevel.Error)
+					return
+				}
+				resolved = true
+				reject(error)
+			})
+
+			if (!process.stdout) throw new Error("No stdout")
+			const resouce = createAudioResource(process.stdout, {
+				inputType: StreamType.Arbitrary,
+				inlineVolume: false,
+			})
+
+			process.stdout.on("data", () => {
+				if (resolved) return
+				resolved = true
+				if (process.stdout) resolve(resouce)
+			})
+		})
 	}
 
-	private runStream() {
+	private async runStream() {
 		if (this.paused) return
 		if (!this._song) return
 
-		let stream = this.getFfmpegStream(this._song)
+		let resource: AudioResource | null = null
 		while (this.retryCount <= this.maxRetries) {
-			if (stream) break
-			log(`Retrying stream for ${this._song.title}`, LogLevel.Warning)
+			try {
+				resource = await this.getFfmpegStream(this._song)
+				break
+			} catch (error) {
+				log(String(error), LogLevel.Error)
+			}
+
 			// TODO: refetch song media url
-			stream = this.getFfmpegStream(this._song)
+			log(`Retrying stream for ${this._song.title}`, LogLevel.Warning)
 			this.retryCount += 1
 		}
 		this.retryCount = 0
 
-		if (!stream) {
+		if (!resource) {
 			log(`Failed to get stream for ${this._song.title}`, LogLevel.Error)
 			throw new Error(`Couldn't get stream for ${this._song.title}`)
 		}
 
-		this.player.play(
-			createAudioResource(stream, { inputType: StreamType.Arbitrary })
-		)
+		this.player.play(resource)
 	}
 
 	pause() {

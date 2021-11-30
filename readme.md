@@ -2,6 +2,10 @@
 
 The entire internal structure is being reorganized/rewritten. So commits are gonna be chunky and weird.
 
+## Refactor notes
+
+- Player.runStream and getFfmpegStream: May need to cleanup or rewrite the retry logic a bit, but it works. Also may need to pick better names for this
+
 ## Bugs
 
 - Unhandled stale media source links (_has_ been an issue now)
