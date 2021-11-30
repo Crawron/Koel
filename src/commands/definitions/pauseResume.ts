@@ -15,6 +15,8 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			if (controller.player.paused) controller.player.resume()
 			else controller.player.pause()
+
+			ctx.reply(() => (controller.player.paused ? "Paused" : "Resumed"))
 		},
 	})
 }
