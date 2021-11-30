@@ -39,8 +39,8 @@ export class Queue {
 	}
 
 	/** Advance the queue and return the current element */
-	next() {
-		this.listPivot += 1
+	next(amount = 1) {
+		this.listPivot += amount
 		return this.current
 	}
 
