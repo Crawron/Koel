@@ -7,8 +7,8 @@ import { getNowPlayingMessage } from "../messageHelpers"
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: cmdName("skip"),
+		aliases: cmdName(["s"]),
 		description: "Skip the current song",
-		aliases: ["s"],
 		options: {
 			amount: {
 				type: "INTEGER",
