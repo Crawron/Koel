@@ -80,6 +80,11 @@ export class Player {
 		connection.subscribe(this.player)
 	}
 
+	/** @returns If disconnection was successful */
+	disconnect() {
+		return this.voiceConnection?.destroy() ?? false
+	}
+
 	resume() {
 		this.timer.run()
 		this.paused = false
