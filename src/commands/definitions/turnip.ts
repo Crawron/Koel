@@ -23,7 +23,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 					chapters: [],
 					mediaUrl:
 						"https://cdn.discordapp.com/attachments/722981100762300427/915066449737969674/turnip.mp3",
-					requester: "895479648077631520",
+					requester: ctx.user.id,
 					source: "youtube",
 					duration: 24000,
 					thumbnailUrl:
