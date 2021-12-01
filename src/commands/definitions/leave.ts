@@ -6,7 +6,7 @@ import { guildCheck } from "../common"
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: cmdName("leave"),
-		description: "Leave a guild",
+		description: "Leave the voice channel",
 		run: (ctx) => {
 			if (!guildCheck(ctx, ctx.guild)) return
 
