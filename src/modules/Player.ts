@@ -17,6 +17,8 @@ import { log, LogLevel } from "../logging"
 
 export class Player {
 	private _song: Song | null = null
+	private audioResource: AudioResource | null = null
+
 	paused = true
 	timer = new Timer()
 	retryCount = 0
@@ -33,16 +35,26 @@ export class Player {
 		this.player.on("error", (error) => this.onError?.(error))
 		this.player.on("stateChange", (oldState, newState) => {
 			// TODO: handle incomplete playback
-			// TODO: handle autopause
 
 			if (newState.status === AudioPlayerStatus.Playing) {
-				if (this.paused) this.player.pause()
+				if (this.paused) this.pause()
+				else this.resume()
+			}
+
+			if (newState.status === AudioPlayerStatus.Paused) {
+				if (!this.paused) this.resume()
+				else this.pause()
+			}
+
+			if (newState.status === AudioPlayerStatus.AutoPaused) {
+				this.timer.pause()
 			}
 
 			if (newState.status === AudioPlayerStatus.Idle) {
 				this.timer.pause()
 				this.timer.reset()
 				this._song = null
+				this.audioResource = null
 
 				this.onSongEnd?.()
 			}
@@ -92,15 +104,16 @@ export class Player {
 	}
 
 	resume() {
+		if (!this.audioResource) this.runStream()
 		this.timer.run()
-		this.paused = false
 		this.player.unpause()
+		this.paused = false
 	}
 
 	pause() {
 		this.timer.pause()
-		this.paused = true
 		this.player.pause()
+		this.paused = true
 	}
 
 	togglePause() {
@@ -116,10 +129,9 @@ export class Player {
 	private async runStream() {
 		if (!this._song) return
 
-		let resource: AudioResource | null = null
 		while (this.retryCount <= this.maxRetries) {
 			try {
-				resource = await this.getSongResource(this._song)
+				this.audioResource = await this.getSongResource(this._song)
 				break
 			} catch (error) {
 				this.onError?.(error)
@@ -130,12 +142,12 @@ export class Player {
 		}
 		this.retryCount = 0
 
-		if (!resource) {
+		if (!this.audioResource) {
 			this.onError?.(new Error("Failed to get stream"))
 			return
 		}
 
-		this.player.play(resource)
+		this.player.play(this.audioResource)
 	}
 
 	private getSongResource(song: Song) {
