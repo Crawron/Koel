@@ -93,12 +93,12 @@ export class Queue {
 		this.add(shuffle(songs))
 	}
 
-	distribute(predicate: (song: Song) => number) {
+	distribute(predicate: (song: Song) => string) {
 		const songs = this.remove(1, Infinity).map(
 			(song) => [predicate(song), song] as const
 		)
 
-		const map: Map<number, Song[]> = new Map()
+		const map: Map<string, Song[]> = new Map()
 		for (const [score, song] of songs) {
 			const list = map.get(score) || []
 			list.push(song)
