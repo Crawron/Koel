@@ -1,10 +1,5 @@
 import { Snowflake } from "discord.js"
 import { escFmting, fmtTime, focusOn, isTruthy, twoDigits } from "../helpers"
-import {
-	requestYtdlServer,
-	YtdlMetadata,
-	YtdlServerResponse,
-} from "../sourceHandler"
 
 export class Song {
 	title: string
@@ -17,17 +12,7 @@ export class Song {
 	source: string
 	chapters: { title: string; start: number }[] = []
 
-	constructor(options: {
-		title: string
-		requester: Snowflake
-		duration?: number
-		thumbnailUrl?: string
-		pageUrl: string
-		mediaUrl: string
-		uploader?: string
-		source: string
-		chapters: { title: string; start: number }[]
-	}) {
+	constructor(options: SongData) {
 		this.title = options.title
 		this.requester = options.requester
 		this.duration = options.duration
@@ -39,7 +24,7 @@ export class Song {
 		this.chapters = options.chapters
 	}
 
-	serialize() {
+	serialize(): SongData {
 		return {
 			title: this.title,
 			chapters: this.chapters,
@@ -51,91 +36,6 @@ export class Song {
 			thumbnailUrl: this.thumbnailUrl,
 			uploader: this.uploader,
 		}
-	}
-
-	static async fromServer(
-		song: YtdlServerResponse["results"][number],
-		requester: Snowflake
-	): Promise<Song> {
-		if (!song.partial) return new Song({ ...song, requester })
-
-		const response = await requestYtdlServer(song.pageUrl, "Video")
-
-		if (response.partial) throw new Error("Failed to get full metadata")
-		if (!response.results[0]) throw new Error("Failed to get full metadata")
-
-		return Song.fromServer(response.results[0], requester)
-	}
-
-	static fromYtdl(ytdlMeta: YtdlMetadata, requester: Snowflake): Song {
-		const {
-			title,
-			fulltitle,
-			duration = 0,
-			thumbnail,
-			uploader,
-			url,
-			webpage_url,
-			extractor_key,
-			chapters = [],
-		} = ytdlMeta
-
-		return new Song(
-			fulltitle || title,
-			requester,
-			duration * 1000,
-			thumbnail,
-			webpage_url,
-			url,
-			uploader,
-			extractor_key,
-			chapters.map((chapter) => ({
-				start: chapter.start_time * 1000,
-				title: chapter.title,
-			}))
-		)
-	}
-
-	static fromStorage(data: SongStore): Song {
-		const {
-			title,
-			chapters,
-			duration,
-			mediaUrl,
-			requester,
-			source,
-			pageUrl: url,
-			thumbnailUrl: thumbnail,
-			uploader,
-		} = data
-
-		return new Song(
-			title,
-			requester,
-			duration,
-			thumbnail,
-			url,
-			mediaUrl,
-			uploader,
-			source,
-			chapters
-		)
-	}
-
-	toStore(): SongStore {
-		const data: SongStore = {
-			title: this.title,
-			pageUrl: this.pageUrl,
-			mediaUrl: this.mediaUrl,
-			source: this.source,
-			duration: this.duration,
-			thumbnailUrl: this.thumbnailUrl,
-			uploader: this.uploader,
-			chapters: this.chapters,
-			requester: this.requester,
-		}
-
-		return data
 	}
 
 	getFormattedChapters(currentTime: number) {
@@ -199,14 +99,19 @@ export class Song {
 
 		return result
 	}
+
+	async refetch() {
+		// TODO hit ytdl to refetch the media url
+		return this.mediaUrl
+	}
 }
 
-export type SongStore = {
+export type SongData = {
 	title: string
 	mediaUrl: string
 	pageUrl: string
 	source: string
-	duration: number
+	duration?: number
 	thumbnailUrl?: string
 	uploader?: string
 	requester: Snowflake
