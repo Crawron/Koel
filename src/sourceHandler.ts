@@ -1,33 +1,54 @@
-import execa from "execa"
 import ytdl from "ytdl-core"
-import { safeJsonParse } from "./helpers"
 import { RequestType } from "./Queue"
+import fetch from "node-fetch"
 
-export async function* requestYtdl(request: string, searchLength = 1) {
-	const ytdlProcess = execa("youtube-dl", [
-		"--default-search",
-		`ytsearch${searchLength}:`,
-		"-f",
-		"bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best[height<=480p]/worst",
-		"-s",
-		"--dump-json",
-		request,
-	])
+const ytdlServerPath = `http://localhost:${process.env.YTDL_PORT}/`
 
-	if (!ytdlProcess.stdout) throw new Error("youtube-dl process stdout is null")
+export async function requestYtdlServer(url: string, type: RequestType) {
+	const params = new URLSearchParams()
+	params.append("url", url)
+	if (type === "Video") params.append("no_playlist", "1")
 
-	let jsonString = Buffer.from([])
+	const requestUrl = new URL(ytdlServerPath)
+	requestUrl.search = params.toString()
 
-	for await (const data of ytdlProcess.stdout) {
-		jsonString = Buffer.concat([jsonString, data])
+	const response = await fetch(requestUrl.toString())
+	const json = (await response.json()) as YtdlServerResponse
 
-		const validJson = safeJsonParse<YtdlMetadata>(jsonString.toString())
-
-		if (validJson) {
-			jsonString = Buffer.from([])
-			yield validJson
-		}
+	return {
+		...json,
 	}
+}
+
+export type YtdlServerResponse = YtdlServerResults | YtdlServerPartialResults
+
+export type YtdlServerPartialResults = {
+	partial: true
+	results: {
+		partial: true
+		pageUrl: string
+		title?: string
+		duration?: number
+		uploader?: string
+	}[]
+}
+
+export type YtdlServerResults = {
+	partial: false
+	results: {
+		partial: false
+		title: string
+		mediaUrl: string
+		pageUrl: string
+		thumbnail?: string
+		duration?: number
+		chapters: {
+			start: number
+			title: string
+		}[]
+		uploader?: string
+		source: string
+	}[]
 }
 
 /** *Part of* the metadata returned by youtube-dl using the `--dump-json` flag */

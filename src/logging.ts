@@ -26,6 +26,8 @@ export function log(message: unknown, level = LogLevel.Info): void {
 
 	const timestamp = new Date().toLocaleTimeString()
 
-	console.log(black(levelText[level]), gray(timestamp), message)
+	if (level === LogLevel.Error)
+		console.error(black(levelText[level]), gray(timestamp), message)
+	else console.log(black(levelText[level]), gray(timestamp), message)
 	// TODO log to discord channel
 }

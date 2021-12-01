@@ -6,6 +6,7 @@ import { tryGetQueue } from "../queueHandler"
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: cmdName("now-playing"),
+		aliases: cmdName(["np"]),
 		description: "Show currently playing song",
 		run(ctx) {
 			const queue = tryGetQueue(ctx)

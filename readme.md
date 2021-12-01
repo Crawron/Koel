@@ -1,4 +1,13 @@
-## To work on next
+# ⚠ ☣ 🐦 Currently working on huge refactor
+
+The entire internal structure is being reorganized/rewritten. So commits are gonna be chunky and weird.
+
+## Refactor notes
+
+- Player.runStream and getAudioResource: Retry logic is definitely flawed, as it doesn't catch playback failures in the middle of a song
+  - A solution to this would be to make the retries happen whenever Djs's player comes idle. Check if the current song has played its entire amount, if it hasn't retry until retries exhausted
+- Forgot to handle behaviour when skipping last song in queue
+- Also I just bricked my whole console by logging ffmpeg output, so maybe I wanna prevent that happening somehow?
 
 ## Bugs
 
