@@ -35,6 +35,10 @@ export class Player {
 			// TODO: handle incomplete playback
 			// TODO: handle autopause
 
+			if (newState.status === AudioPlayerStatus.Playing) {
+				if (this.paused) this.player.pause()
+			}
+
 			if (newState.status === AudioPlayerStatus.Idle) {
 				this.timer.pause()
 				this.timer.reset()
