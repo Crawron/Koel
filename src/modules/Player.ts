@@ -51,7 +51,6 @@ export class Player {
 
 	serialize() {
 		return {
-			song: this._song,
 			timer: this.timer.time,
 			paused: this.paused,
 		}
@@ -75,11 +74,6 @@ export class Player {
 	}) {
 		if (handlers.onError) this.onError = handlers.onError
 		if (handlers.onSongEnd) this.onSongEnd = handlers.onSongEnd
-	}
-
-	setSong(song: Song | null) {
-		this._song = song
-		this.runStream()
 	}
 
 	connect(channel: VoiceChannel | StageChannel) {
@@ -114,14 +108,18 @@ export class Player {
 		else this.pause()
 	}
 
+	setSong(song: Song | null) {
+		this._song = song
+		if (!this.paused) this.runStream()
+	}
+
 	private async runStream() {
-		if (this.paused) return
 		if (!this._song) return
 
 		let resource: AudioResource | null = null
 		while (this.retryCount <= this.maxRetries) {
 			try {
-				resource = await this.getFfmpegStream(this._song)
+				resource = await this.getSongResource(this._song)
 				break
 			} catch (error) {
 				this.onError?.(error)
@@ -140,7 +138,7 @@ export class Player {
 		this.player.play(resource)
 	}
 
-	private getFfmpegStream(song: Song) {
+	private getSongResource(song: Song) {
 		return new Promise<AudioResource>((resolve, reject) => {
 			const args = [
 				"-hide_banner -loglevel error",
