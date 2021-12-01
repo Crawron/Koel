@@ -8,7 +8,7 @@ export class Controller {
 	// TODO: Idle pool
 	player: Player
 
-	constructor(guildId: string) {
+	constructor(public guildId: string) {
 		this.queue = new Queue()
 		reaction(
 			() => this.queue.current,
@@ -27,6 +27,7 @@ export class Controller {
 
 	serialize() {
 		return {
+			guildId: this.guildId,
 			queue: this.queue.serialize(),
 			player: this.player.serialize(),
 		}
