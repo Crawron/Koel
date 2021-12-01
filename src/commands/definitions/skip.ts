@@ -21,7 +21,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			const controller = controllerStore.getOrCreate(ctx.guild.id)
 
-			controller.queue.next()
+			controller.queue.next(ctx.options.amount)
 
 			ctx.reply(() => getNowPlayingMessage(controller))
 		},
