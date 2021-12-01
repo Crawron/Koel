@@ -4,7 +4,9 @@ The entire internal structure is being reorganized/rewritten. So commits are gon
 
 ## Refactor notes
 
-- Player.runStream and getFfmpegStream: May need to cleanup or rewrite the retry logic a bit, but it works. Also may need to pick better names for this
+- Player.runStream and getFfmpegStream: Retry logic is definitely flawed, as it doesn't catch playback failures in the middle of a song.
+  - A solution to this would be to make the retries happen whenever Djs's player comes idle. Check if the current song has played it's entire amount, if it hasn't retry until retries exhausted
+- Also I just bricked my whole console by logging ffmpeg output, so maybe I wanna prevent that happening somehow?
 
 ## Bugs
 
