@@ -154,15 +154,9 @@ export class Player {
 
 	private runStream() {
 		if (!this.song) return
-
 		this.retryCount += 1
+
 		this.audioResource = this.getSongResource(this.song)
-
-		if (!this.audioResource) {
-			this.onError?.(new Error("Failed to get stream"))
-			return
-		}
-
 		this.player.play(this.audioResource)
 		if (!this.pause) this.timer.run()
 	}
