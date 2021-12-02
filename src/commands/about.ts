@@ -23,7 +23,9 @@ Give me YouTube, Soundcloud, Bandcamp, Twitter Videos, File URLs, F'in PNGs [idc
 
 **Koel's a private bot, so invitiation requires <@109677308410875904> to also be invited**
 
-[Source on GitHub](https://github.com/Crawron/Koel "♥"), including a list of planned features and known bugs. Also give me a star, I dare you :star:
+:star: [Source on GitHub](https://github.com/Crawron/Koel "♥"), including a list of planned features and known bugs. Also give me a star, I dare you 
+
+:coffee: Also support me on [Ko-Fi](https://ko-fi.com/crawron "♥")!
 `,
 					color: 0x0773e6,
 					image: { url: "https://elixi.re/i/8v7zt.png" },
