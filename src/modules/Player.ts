@@ -13,10 +13,9 @@ import {
 	AudioResource,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
-import { log, LogLevel } from "../logging"
 
 export class Player {
-	private _song: Song | null = null
+	private song: Song | null = null
 	private audioResource: AudioResource | null = null
 
 	paused = true
@@ -52,13 +51,33 @@ export class Player {
 
 			if (newState.status === AudioPlayerStatus.Idle) {
 				this.timer.pause()
-				this.timer.reset()
-				this._song = null
-				this.audioResource = null
 
+				if (!this.songEndedProperly()) {
+					if (this.retryCount > maxRetries) {
+						this.onError?.(
+							new Error(
+								`Failed to play ${this.song?.title} after several attempts`
+							)
+						)
+						this.onSongEnd?.()
+						return
+					}
+
+					this.runStream()
+					return
+				}
+
+				this.setSong(null)
 				this.onSongEnd?.()
 			}
 		})
+	}
+
+	songEndedProperly() {
+		if (!this.song) return true
+		if (!this.song.duration) return true
+
+		return this.timer.time > this.song.duration - 5000
 	}
 
 	serialize() {
@@ -69,7 +88,7 @@ export class Player {
 	}
 
 	get isIdle() {
-		return this._song === null
+		return this.song === null
 	}
 
 	get isConnected() {
@@ -122,25 +141,22 @@ export class Player {
 	}
 
 	setSong(song: Song | null) {
-		this._song = song
-		if (!this.paused) this.runStream()
+		this.song = song
+
+		this.audioResource = null
+		this.retryCount = 0
+		this.timer.pause()
+		this.timer.reset()
+
+		// TODO kill
+		this.runStream()
 	}
 
-	private async runStream() {
-		if (!this._song) return
+	private runStream() {
+		if (!this.song) return
 
-		while (this.retryCount <= this.maxRetries) {
-			try {
-				this.audioResource = await this.getSongResource(this._song)
-				break
-			} catch (error) {
-				this.onError?.(error)
-			}
-
-			// TODO: refetch song media url
-			this.retryCount += 1
-		}
-		this.retryCount = 0
+		this.retryCount += 1
+		this.audioResource = this.getSongResource(this.song)
 
 		if (!this.audioResource) {
 			this.onError?.(new Error("Failed to get stream"))
@@ -148,48 +164,32 @@ export class Player {
 		}
 
 		this.player.play(this.audioResource)
+		if (!this.pause) this.timer.run()
 	}
 
 	private getSongResource(song: Song) {
-		return new Promise<AudioResource>((resolve, reject) => {
-			const args = [
-				"-hide_banner -loglevel error",
-				`-ss ${this.timer.time / 1000}`, // seek
-				`-i ${song.mediaUrl}`, // input
-				"-ar 48000", // audio sample rate
-				"-ac 2", // audio channels
-				"-acodec libopus", // audio codec
-				"-f opus", // output format
-				"-", // output to stdout
-			].join(" ")
+		const args = [
+			"-hide_banner -loglevel error",
+			`-ss ${this.timer.time / 1000}`, // seek
+			`-i ${song.mediaUrl}`, // input
+			"-ar 48000", // audio sample rate
+			"-ac 2", // audio channels
+			"-acodec libopus", // audio codec
+			"-f opus", // output format
+			"-", // output to stdout
+		].join(" ")
 
-			let resolved = false
+		const process = execa.command(`ffmpeg ${args}`, {
+			buffer: true,
+			windowsHide: false,
+		})
 
-			const process = execa.command(`ffmpeg ${args}`, {
-				buffer: true,
-				windowsHide: false,
-			})
+		process.catch((error) => this.onError?.(error))
 
-			process.catch((error) => {
-				if (resolved) {
-					log(error.message, LogLevel.Error)
-					return
-				}
-				resolved = true
-				reject(error)
-			})
-
-			if (!process.stdout) throw new Error("No stdout")
-			const resouce = createAudioResource(process.stdout, {
-				inputType: StreamType.Arbitrary,
-				inlineVolume: false,
-			})
-
-			process.stdout.on("data", () => {
-				if (resolved) return
-				resolved = true
-				if (process.stdout) resolve(resouce)
-			})
+		if (!process.stdout) throw new Error("No stdout")
+		return createAudioResource(process.stdout, {
+			inputType: StreamType.Arbitrary,
+			inlineVolume: false,
 		})
 	}
 }
