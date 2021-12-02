@@ -21,6 +21,8 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			const controller = controllerStore.getOrCreate(ctx.guild.id)
 
+			if (ctx.channel) controller.setLogsChannel(ctx.channel)
+
 			controller.player.resume()
 			controller.queue.add([
 				new Song({
