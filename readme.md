@@ -1,4 +1,6 @@
-## To work on next
+# ⚠ ☣ 🐦 Currently working on huge refactor on the [`dev`](https://github.com/Crawron/Koel/tree/dev) branch
+
+New features to this main branch will be kept on hold until this refactor's done
 
 ## Bugs
 
