@@ -143,3 +143,7 @@ export function zip<T extends unknown>(...arrays: T[][]): T[] {
 		.flat()
 		.filter((a): a is T => a !== undefined)
 }
+
+export function randomItem<T>(items: T[]) {
+	return items[Math.floor(Math.random() * items.length)]
+}
