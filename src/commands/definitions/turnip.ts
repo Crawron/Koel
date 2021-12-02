@@ -8,6 +8,12 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: cmdName("turnip"),
 		description: "turn up",
+		options: {
+			"media-url": {
+				type: "STRING",
+				description: "Override media url",
+			},
+		},
 		run: async (ctx) => {
 			ctx.defer()
 
@@ -22,6 +28,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 					pageUrl: "https://www.youtube.com/watch?v=tx2LXzM-Q2A",
 					chapters: [],
 					mediaUrl:
+						ctx.options["media-url"] ??
 						"https://cdn.discordapp.com/attachments/722981100762300427/915066449737969674/turnip.mp3",
 					requester: ctx.user.id,
 					source: "youtube",
