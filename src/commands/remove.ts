@@ -20,16 +20,14 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			const { position } = ctx.options
 
 			const removed = queue.removeSong(position)
-			if (removed.length === 0) {
-				ctx.reply(() => "No song at that position")
-				return
-			}
 
 			ctx.reply(() =>
 				embedComponent({
-					description: `Removed ${removed
-						.map((song) => `[${escFmting(song.title)}](${song.pageUrl})`)
-						.join(", ")}`,
+					description: `Removed ${
+						removed
+							.map((song) => `[${escFmting(song.title)}](${song.pageUrl})`)
+							.join(", ") || `...nothing`
+					}`,
 					color: 0x0773e6,
 				})
 			)
