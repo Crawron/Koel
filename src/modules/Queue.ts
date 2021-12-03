@@ -94,7 +94,7 @@ export class Queue {
 	}
 
 	distribute(predicate: (song: Song) => string) {
-		const songs = this.remove(1, Infinity).map(
+		const songs = this.remove(0, Infinity).map(
 			(song) => [predicate(song), song] as const
 		)
 
