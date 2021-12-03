@@ -23,7 +23,6 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			if (ctx.channel) controller.setLogsChannel(ctx.channel)
 
-			controller.player.resume()
 			controller.queue.add([
 				new Song({
 					title: "turnip turns up",
