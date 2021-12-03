@@ -135,6 +135,11 @@ export class Queue {
 		saveQueue(this.toData())
 	}
 
+	removeSong(position: number) {
+		position = cap(position, 1, this.upcomingSongs.length - 1)
+		return this.list.splice(this.queuePosition + position, 1)
+	}
+
 	/** Returns deleted songs */
 	clearQueue() {
 		const deletedCount = this.list.splice(this._queuePosition + 1).length
