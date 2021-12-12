@@ -163,3 +163,12 @@ export function filePath(fileUrl: string): {
 		filename,
 	}
 }
+
+export function safeNewHttpUrl(url: string) {
+	try {
+		const urlInstance = new URL(url)
+		if (/^https?:$/.test(urlInstance.protocol)) return urlInstance
+	} catch {
+		return
+	}
+}
