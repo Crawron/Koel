@@ -37,6 +37,17 @@ def source_metadata():
     }
 
 
+@app.route('/url')
+def source_url():
+    url = request.args.get('query', "")
+    if url == "":
+        return {"error": "No URL provided"}
+
+    metadata = get_video_metadata(url, noplaylist=True)
+
+    return jsonify({"url": metadata.get("url", None)})
+
+
 def transform_list_meta(metadata: dict):
     return [{
         "duration": entry.get("duration", None),
