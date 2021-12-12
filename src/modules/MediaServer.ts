@@ -51,14 +51,6 @@ class MediaServer {
 		for (const request of requests) {
 			const response = await this.request(request)
 
-			if ("error" in response) {
-				throw new Error(response.error)
-			}
-
-			if (response.partial) {
-				throw new Error("Partial response recieved when requesting several")
-			}
-
 			yield response
 		}
 	}
