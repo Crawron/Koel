@@ -79,15 +79,18 @@ class MediaServer {
 
 export type MediaServerMetadataResponse = {
 	partial: boolean
+	query: string
 	metadata: SongData[]
 	raw: Record<string, unknown>
 }
 
 export type MediaServerUrlResponse = {
+	query: string
 	url: string
 }
 
 export type MediaServerErrorResponse = {
+	query: string
 	error: string
 }
 

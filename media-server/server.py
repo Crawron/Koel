@@ -23,15 +23,19 @@ def get_video_metadata(url: str, noplaylist: bool = True) -> dict:
 
 @app.route('/')
 def source_metadata():
-    url = request.args.get('query', "")
-    if url == "":
-        return {"error": "No query provided"}
+    query = request.args.get('query', "")
+    if query == "":
+        return {
+            "query": query,
+            "error": "No query provided"
+        }
 
-    metadata = get_video_metadata(url)
+    metadata = get_video_metadata(query)
     isList = len(metadata.get('entries', [])) > 0
 
     return {
         "partial":  isList,
+        "query": query,
         "metadata": transform_list_meta(metadata) if isList else transform_video_meta(metadata),
         "raw": metadata
     }
@@ -39,13 +43,19 @@ def source_metadata():
 
 @app.route('/url')
 def source_url():
-    url = request.args.get('query', "")
-    if url == "":
-        return {"error": "No URL provided"}
+    query = request.args.get('query', "")
+    if query == "":
+        return {
+            "query": query,
+            "error": "No URL provided"
+        }
 
-    metadata = get_video_metadata(url, noplaylist=True)
+    metadata = get_video_metadata(query, noplaylist=True)
 
-    return jsonify({"url": metadata.get("url", None)})
+    return {
+        "query": query,
+        "url": metadata.get("url", None)
+    }
 
 
 def transform_list_meta(metadata: dict):
