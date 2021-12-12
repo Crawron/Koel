@@ -4,7 +4,8 @@ The entire internal structure is being reorganized/rewritten. So commits are gon
 
 ## Refactor notes
 
-- Forgot to handle behaviour when skipping last song in queue
+- **Missing bunch of fixes to the /play command, also more testing needed there**
+- Forgot to handle behaviour when skipping last song in queue (_still_)
 - Also I just bricked my whole console by logging ffmpeg output, so maybe I wanna prevent that happening somehow?
 - Player: Retry logic working and it should be able to handle every possible playback failure I can recover from\*
   - \* i hope
