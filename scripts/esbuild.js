@@ -7,6 +7,6 @@ await esbuild.build({
 	sourcemap: true,
 	logLevel: "info",
 	platform: "node",
-	target: "esnext",
-	format: "cjs",
+	target: "node16",
+	format: "esm",
 })

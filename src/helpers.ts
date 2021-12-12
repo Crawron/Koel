@@ -1,3 +1,6 @@
+import { fileURLToPath } from "url"
+import { dirname } from "path"
+
 /** Escape Discord formatting  */
 export function escFmting(text: string | undefined) {
 	return text?.replace(/[<>:*_~#@]/g, "\\$&") ?? "_none_"
@@ -146,4 +149,17 @@ export function zip<T extends unknown>(...arrays: T[][]): T[] {
 
 export function randomItem<T>(items: T[]) {
 	return items[Math.floor(Math.random() * items.length)]
+}
+
+/** Pass `import.meta.url` as the fileUrl */
+export function filePath(fileUrl: string): {
+	dirname: string
+	filename: string
+} {
+	const filename = fileURLToPath(fileUrl)
+
+	return {
+		dirname: dirname(filename),
+		filename,
+	}
 }
