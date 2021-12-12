@@ -1,5 +1,6 @@
 import { execa, ExecaChildProcess } from "execa"
 import fetch from "node-fetch"
+import { log, LogLevel } from "../logging"
 import { SongData } from "./Song"
 
 class MediaServer {
@@ -18,9 +19,13 @@ class MediaServer {
 		// TODO missing server error logs
 		this.stopServer()
 
+		log(`Start server`, LogLevel.Debug)
+
 		this.process = execa("./media-server/env/bin/python", [
-			"./meida-server/server.py",
+			"./media-server/server.py",
 		])
+
+		this.process.catch((err) => log(err, LogLevel.Error))
 	}
 
 	stopServer() {
@@ -35,7 +40,7 @@ class MediaServer {
 		const { noPlaylist = false, searchCount = 1 } = options
 
 		// TODO dont hardcode port or host
-		const serverUrl = new URL(`http://localhost:4863`)
+		const serverUrl = new URL(`http://127.0.0.1:4863`)
 		serverUrl.searchParams.set("query", query)
 		serverUrl.searchParams.set("noPlaylist", noPlaylist ? "1" : "0")
 		serverUrl.searchParams.set("searchCount", searchCount.toString())
@@ -57,7 +62,7 @@ class MediaServer {
 
 	async requestUrl(query: string) {
 		// TODO dont hardcode port or host
-		const serverUrl = new URL("http://localhost:4863/url")
+		const serverUrl = new URL("http://127.0.0.1:4863/url")
 		serverUrl.searchParams.set("query", query)
 		serverUrl.searchParams.set("noPlaylist", "1")
 
@@ -72,7 +77,7 @@ class MediaServer {
 export type MediaServerMetadataResponse = {
 	partial: boolean
 	query: string
-	metadata: SongData[]
+	metadata: Omit<SongData, "requester">[]
 	raw: Record<string, unknown>
 }
 
