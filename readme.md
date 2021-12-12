@@ -18,17 +18,17 @@ The entire internal structure is being reorganized/rewritten. So commits are gon
 - Weird behaviour when seeking from persistence
 - Actually just weird seeking in general, the beginning of songs may be cut off
 
-## Planned?
+## Planned (crossed are solved by refactor)
 
-- Retry system on play (and give up)
-- Automatically leave when idled for too long
-- Proper error handling, instead of failing silently
-- /np and /q shorthands
-- Distributed Queue (song requests evenly split between requesters in queue)
-- Live Player Message
-- Playlist saving
 - Repeat one / Repeat playlist
+- Automatically leave when idled for too long
 - Permission system
+- Playlist saving
+- Live Player Message
+- ~~Retry system on play (and give up)~~
+- ~~Proper error handling, instead of failing silently~~
+- ~~/np and /q shorthands~~ ty maple ❤
+- ~~Distributed Queue (song requests evenly split between requesters in queue)~~
 
 ## Done :)
 
