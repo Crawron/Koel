@@ -2,19 +2,19 @@ name: ci
 on: [push]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    continue-on-error: false
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16.x
-      - shell: bash
-        run: |
-          npm i -g pnpm
-          pnpm i --frozen-lockfile
-          pnpm run test
+  # test:
+  #   runs-on: ubuntu-latest
+  #   continue-on-error: false
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 16.x
+  #     - shell: bash
+  #       run: |
+  #         npm i -g pnpm
+  #         pnpm i --frozen-lockfile
+  #         pnpm run test
 
   # typecheck:
   #   runs-on: ubuntu-latest
