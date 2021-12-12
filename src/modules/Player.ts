@@ -1,6 +1,6 @@
 import { Timer } from "./Timer"
 import { Song } from "./Song"
-import execa from "execa"
+import { execaCommand } from "execa"
 import {
 	createAudioPlayer,
 	createAudioResource,
@@ -84,6 +84,8 @@ export class Player {
 		return {
 			timer: this.timer.time,
 			paused: this.paused,
+			retryCount: this.retryCount,
+			maxRetries: this.maxRetries,
 		}
 	}
 
@@ -166,6 +168,7 @@ export class Player {
 			"-hide_banner -loglevel error",
 			`-ss ${this.timer.time / 1000}`, // seek
 			`-i ${song.mediaUrl}`, // input
+			`-analyzeduration 0`,
 			"-ar 48000", // audio sample rate
 			"-ac 2", // audio channels
 			"-acodec libopus", // audio codec
@@ -173,7 +176,7 @@ export class Player {
 			"-", // output to stdout
 		].join(" ")
 
-		const process = execa.command(`ffmpeg ${args}`, {
+		const process = execaCommand(`ffmpeg ${args}`, {
 			buffer: true,
 			windowsHide: false,
 		})
