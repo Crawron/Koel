@@ -3,3 +3,4 @@ build
 .env
 *.sqlite
 storage
+media-server/env
