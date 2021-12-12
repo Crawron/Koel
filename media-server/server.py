@@ -61,7 +61,7 @@ def source_url():
 def transform_list_meta(metadata: dict):
     return [{
         "duration": entry.get("duration", None),
-        "pageUrl": entry.get("webpage_url"),
+        "pageUrl": entry.get("webpage_url", entry.get("url", None)),
         "uploader": entry.get("uploader", None),
         "title": entry.get("title"),
         "source": metadata.get("extractor_key"),
