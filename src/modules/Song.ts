@@ -7,7 +7,7 @@ export class Song {
 	duration?: number
 	thumbnailUrl?: string
 	pageUrl: string
-	mediaUrl: string
+	mediaUrl?: string
 	uploader?: string
 	source: string
 	chapters: { title: string; start: number }[] = []
@@ -108,7 +108,7 @@ export class Song {
 
 export type SongData = {
 	title: string
-	mediaUrl: string
+	mediaUrl?: string
 	pageUrl: string
 	source: string
 	duration?: number
