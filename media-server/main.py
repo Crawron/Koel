@@ -56,9 +56,10 @@ def transform_video_meta(metadata: dict):
         "duration": metadata.get("duration", None),
         "thumbnailUrl": metadata.get("thumbnail", None),
         "uploader": metadata.get("uploader", None),
-        "chapters": [
-            {"title": chapter.get("title"), "start": chapter.get("start_time")} for chapter in metadata.get("chapters", [])
-        ],
+        "chapters": [{
+            "title": chapter.get("title"),
+            "start": chapter.get("start_time")
+        } for chapter in metadata.get("chapters", [])],
     }]
 
 
