@@ -13,7 +13,8 @@ def get_video_metadata(url: str, noplaylist: bool = True) -> dict:
         "noplaylist": noplaylist,
         "extract_flat": "in_playlist",
         "format": "bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio/best[height<=480p]/worst",
-        "quiet": True
+        "quiet": True,
+        "default_search": "ytsearch:",
     }
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
