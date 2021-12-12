@@ -22,9 +22,9 @@ def get_video_metadata(url: str, noplaylist: bool = True) -> dict:
 
 @app.route('/')
 def source_metadata():
-    url = request.args.get('url', "")
+    url = request.args.get('query', "")
     if url == "":
-        return {"error": "No URL provided"}
+        return {"error": "No query provided"}
 
     metadata = get_video_metadata(url)
     isList = len(metadata.get('entries', [])) > 0
