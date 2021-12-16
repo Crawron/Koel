@@ -1,9 +1,9 @@
-import { get } from "https"
 import { embedComponent, Gatekeeper } from "@itsmapleleaf/gatekeeper"
+import fetch from "node-fetch"
 import { cmdName, isTruthy, randomItem } from "../../helpers"
 
 export default async function defineCommands(gatekeeper: Gatekeeper) {
-	const lyrics = (await getBody(process.env.LYRICS_URL ?? ""))
+	const lyrics = (await (await fetch(process.env.LYRICS_URL ?? "")).text())
 		.split("\n")
 		.map((x) => x.trim())
 		.filter(isTruthy)
@@ -33,16 +33,5 @@ Give me YouTube, Soundcloud, Bandcamp, Twitter Videos, File URLs, F'in PNGs [idc
 				}),
 			])
 		},
-	})
-}
-
-function getBody(url: string) {
-	return new Promise<string>((resolve) => {
-		get(url, (res) => {
-			let body = ""
-			res.on("data", (chunk) => (body += chunk))
-			res.on("end", () => resolve(body))
-			res.on("error", () => resolve(""))
-		})
 	})
 }
