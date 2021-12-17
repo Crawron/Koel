@@ -19,18 +19,22 @@ class MediaServer {
 		// TODO missing server error logs
 		this.stopServer()
 
-		log(`Start server`, LogLevel.Debug)
-
 		this.process = execa("./media-server/env/bin/python", [
 			"./media-server/server.py",
 		])
 
-		this.process.catch((err) => log(err, LogLevel.Error))
+		this.process.stderr!.on("data", (data) => {
+			log(`Media server error: ${data}`, LogLevel.Error)
+		})
+
+		log(`Media server started`, LogLevel.Info)
 	}
 
 	stopServer() {
 		this.process?.kill()
 		this.process = null
+
+		log(`Media server stopped`, LogLevel.Info)
 	}
 
 	async request(
