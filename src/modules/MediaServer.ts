@@ -23,7 +23,7 @@ class MediaServer {
 			"./media-server/server.py",
 		])
 
-		this.process.stderr!.on("data", (data) => {
+		this.process.stderr?.on("data", (data) => {
 			log(`Media server error: ${data}`, LogLevel.Error)
 		})
 
