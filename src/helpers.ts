@@ -1,5 +1,5 @@
-import { fileURLToPath } from "url"
 import { dirname } from "path"
+import { fileURLToPath } from "url"
 
 /** Escape Discord formatting  */
 export function escFmting(text: string | undefined) {
@@ -24,9 +24,9 @@ export function parseTime(time: string) {
 /** Format a number to be two digits or more */
 export const twoDigits = (n: number) => n.toString().padStart(2, "0")
 
-/** Format milliseconds to human time */
+/** Format seconds to human time */
 export function fmtTime(time: number): string {
-	const seconds = Math.floor(time / 1000)
+	const seconds = time
 	const minutes = Math.floor(seconds / 60)
 	const hours = Math.floor(minutes / 60)
 
