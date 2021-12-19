@@ -184,7 +184,7 @@ export class Player {
 
 		if (!process.stdout) throw new Error("No stdout")
 		return createAudioResource(process.stdout, {
-			inputType: StreamType.Arbitrary,
+			inputType: StreamType.OggOpus,
 			inlineVolume: false,
 		})
 	}
