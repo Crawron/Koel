@@ -86,6 +86,7 @@ export class Player {
 			paused: this.paused,
 			retryCount: this.retryCount,
 			maxRetries: this.maxRetries,
+			djsPlayerState: this.player.state.status,
 		}
 	}
 
