@@ -24,7 +24,7 @@ class MediaServer {
 		])
 
 		this.process.stderr?.on("data", (data) => {
-			log(`Media server error: ${data}`, LogLevel.Error)
+			log(`Media server error: ${data}`.trim(), LogLevel.Error)
 		})
 
 		log(`Media server started`, LogLevel.Info)
