@@ -18,7 +18,7 @@ export class Player {
 	private song: Song | null = null
 	private audioResource: AudioResource | null = null
 
-	paused = true
+	paused = false
 	timer = new Timer()
 	retryCount = 0
 
