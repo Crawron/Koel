@@ -7,6 +7,7 @@ import { cap, escFmting, fmtTime, isTruthy, paginate } from "../helpers"
 import { Controller } from "../modules/Controller"
 import { Player } from "../modules/Player"
 import { Queue } from "../modules/Queue"
+import { Song } from "../modules/Song"
 
 export function messagefyQueue(
 	queue: Queue,
@@ -150,4 +151,26 @@ export function getNowPlayingMessage(controller: Controller): ReplyComponent[] {
 			].filter(isTruthy),
 		}),
 	]
+}
+
+export function getQueueAddedMessage(
+	songs: Song[],
+	addedPosition: number
+): ReplyComponent {
+	const songList = songs
+		.slice(0, 5)
+		.map((song, i) =>
+			song.stringify({ link: true, index: addedPosition + i, requester: false })
+		)
+		.join("\n")
+
+	const footer =
+		songs.length > 5 ? { text: `And ${songs.length - 5} more...` } : undefined
+
+	return embedComponent({
+		author: { name: "Added to queue" },
+		description: songList,
+		color: 0x0773e6,
+		footer: footer,
+	})
 }

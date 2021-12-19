@@ -4,7 +4,12 @@ The entire internal structure is being reorganized/rewritten. So commits are gon
 
 ## Refactor notes
 
-- Forgot to handle behaviour when skipping last song in queue
+- **Media server port is hardcoded, don't**
+- **Missing bunch of fixes to the /play command, also more testing needed there**
+- **Auto-join when starting to play a queue**
+  - Actually i need specific notes on the behaviour for this cause i keep procrastinating on it for that reason
+- todo generate requirements.txt for python server
+- Forgot to handle behaviour when skipping last song in queue (_still_)
 - Also I just bricked my whole console by logging ffmpeg output, so maybe I wanna prevent that happening somehow?
 - Player: Retry logic working and it should be able to handle every possible playback failure I can recover from\*
   - \* i hope
@@ -18,17 +23,17 @@ The entire internal structure is being reorganized/rewritten. So commits are gon
 - Weird behaviour when seeking from persistence
 - Actually just weird seeking in general, the beginning of songs may be cut off
 
-## Planned?
+## Planned (crossed are solved by refactor)
 
-- Retry system on play (and give up)
-- Automatically leave when idled for too long
-- Proper error handling, instead of failing silently
-- /np and /q shorthands
-- Distributed Queue (song requests evenly split between requesters in queue)
-- Live Player Message
-- Playlist saving
 - Repeat one / Repeat playlist
+- Automatically leave when idled for too long
 - Permission system
+- Playlist saving
+- Live Player Message
+- ~~Retry system on play (and give up)~~
+- ~~Proper error handling, instead of failing silently~~
+- ~~/np and /q shorthands~~ ty maple ❤
+- ~~Distributed Queue (song requests evenly split between requesters in queue)~~
 
 ## Done :)
 

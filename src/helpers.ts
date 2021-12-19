@@ -1,3 +1,6 @@
+import { dirname } from "path"
+import { fileURLToPath } from "url"
+
 /** Escape Discord formatting  */
 export function escFmting(text: string | undefined) {
 	return text?.replace(/[<>:*_~#@]/g, "\\$&") ?? "_none_"
@@ -21,9 +24,9 @@ export function parseTime(time: string) {
 /** Format a number to be two digits or more */
 export const twoDigits = (n: number) => n.toString().padStart(2, "0")
 
-/** Format milliseconds to human time */
+/** Format seconds to human time */
 export function fmtTime(time: number): string {
-	const seconds = Math.floor(time / 1000)
+	const seconds = Math.floor(time)
 	const minutes = Math.floor(seconds / 60)
 	const hours = Math.floor(minutes / 60)
 
@@ -146,4 +149,26 @@ export function zip<T extends unknown>(...arrays: T[][]): T[] {
 
 export function randomItem<T>(items: T[]) {
 	return items[Math.floor(Math.random() * items.length)]
+}
+
+/** Pass `import.meta.url` as the fileUrl */
+export function filePath(fileUrl: string): {
+	dirname: string
+	filename: string
+} {
+	const filename = fileURLToPath(fileUrl)
+
+	return {
+		dirname: dirname(filename),
+		filename,
+	}
+}
+
+export function safeNewHttpUrl(url: string) {
+	try {
+		const urlInstance = new URL(url)
+		if (/^https?:$/.test(urlInstance.protocol)) return urlInstance
+	} catch {
+		return
+	}
 }

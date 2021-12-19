@@ -1,18 +1,18 @@
-import { Timer } from "./Timer"
-import { Song } from "./Song"
-import execa from "execa"
 import {
-	createAudioPlayer,
-	createAudioResource,
-	joinVoiceChannel,
-	getVoiceConnection,
 	AudioPlayer as DjsAudioPlayer,
-	NoSubscriberBehavior,
-	StreamType,
 	AudioPlayerStatus,
 	AudioResource,
+	createAudioPlayer,
+	createAudioResource,
+	getVoiceConnection,
+	joinVoiceChannel,
+	NoSubscriberBehavior,
+	StreamType,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
+import { execaCommand } from "execa"
+import { Song } from "./Song"
+import { Timer } from "./Timer"
 
 export class Player {
 	private song: Song | null = null
@@ -31,18 +31,16 @@ export class Player {
 		this.player = createAudioPlayer({
 			behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
 		})
-		this.player.on("error", (error) => this.onError?.(error))
-		this.player.on("stateChange", (oldState, newState) => {
-			// TODO: handle incomplete playback
 
+		this.player.on("error", (error) => this.onError?.(error))
+
+		this.player.on("stateChange", (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Playing) {
 				if (this.paused) this.pause()
-				else this.resume()
 			}
 
 			if (newState.status === AudioPlayerStatus.Paused) {
 				if (!this.paused) this.resume()
-				else this.pause()
 			}
 
 			if (newState.status === AudioPlayerStatus.AutoPaused) {
@@ -84,6 +82,9 @@ export class Player {
 		return {
 			timer: this.timer.time,
 			paused: this.paused,
+			retryCount: this.retryCount,
+			maxRetries: this.maxRetries,
+			djsPlayerState: this.player.state.status,
 		}
 	}
 
@@ -125,14 +126,14 @@ export class Player {
 	resume() {
 		if (!this.audioResource) this.runStream()
 		this.timer.run()
-		this.player.unpause()
 		this.paused = false
+		this.player.unpause()
 	}
 
 	pause() {
 		this.timer.pause()
-		this.player.pause()
 		this.paused = true
+		this.player.pause()
 	}
 
 	togglePause() {
@@ -166,6 +167,7 @@ export class Player {
 			"-hide_banner -loglevel error",
 			`-ss ${this.timer.time / 1000}`, // seek
 			`-i ${song.mediaUrl}`, // input
+			`-analyzeduration 0`,
 			"-ar 48000", // audio sample rate
 			"-ac 2", // audio channels
 			"-acodec libopus", // audio codec
@@ -173,7 +175,7 @@ export class Player {
 			"-", // output to stdout
 		].join(" ")
 
-		const process = execa.command(`ffmpeg ${args}`, {
+		const process = execaCommand(`ffmpeg ${args}`, {
 			buffer: true,
 			windowsHide: false,
 		})
@@ -182,7 +184,7 @@ export class Player {
 
 		if (!process.stdout) throw new Error("No stdout")
 		return createAudioResource(process.stdout, {
-			inputType: StreamType.Arbitrary,
+			inputType: StreamType.OggOpus,
 			inlineVolume: false,
 		})
 	}

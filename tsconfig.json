@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
+		"module": "esnext",
+		"moduleResolution": "node",
 		"target": "es2020",
 		"jsx": "preserve",
 		"strictFunctionTypes": true,

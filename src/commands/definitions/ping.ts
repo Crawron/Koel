@@ -1,5 +1,5 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
-import { cmdName } from "../helpers"
+import { cmdName } from "../../helpers"
 
 export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({

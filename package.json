@@ -1,4 +1,5 @@
 {
+	"type": "module",
 	"devDependencies": {
 		"@types/ffmpeg-static": "^3.0.0",
 		"@types/jest": "^27.0.3",
@@ -8,33 +9,36 @@
 		"@typescript-eslint/eslint-plugin": "^4.33.0",
 		"@typescript-eslint/parser": "^4.33.0",
 		"cpy": "^8.1.2",
-		"esbuild": "^0.13.15",
+		"esbuild": "^0.14.2",
 		"esbuild-jest": "^0.5.0",
 		"eslint": "^7.32.0",
-		"execa": "^5.1.1",
 		"fast-glob": "^3.2.7",
 		"jest": "^27.4.4",
 		"rimraf": "^3.0.2",
 		"simple-git": "^2.48.0",
+		"esno": "^0.12.1",
 		"typescript": "^4.5.3"
 	},
+	"resolutions": {
+		"esbuild": "0.14.2"
+	},
 	"scripts": {
-		"dev": "esno --inspect=5858 src/main.ts",
+		"dev": "esmo --inspect=5858 src/main.ts",
 		"start": "esno src/main.ts",
 		"test": "jest",
 		"typecheck": "tsc --noEmit",
-		"getytdl": "node scripts/getYtdl.mjs",
+		"getytdl": "node scripts/getYtdl.js",
 		"build": "tsc",
-		"esbuild": "node scripts/esbuild.mjs"
+		"esbuild": "node scripts/esbuild.js"
 	},
 	"dependencies": {
+		"execa": "^6.0.0",
 		"@discordjs/voice": "^0.7.5",
-		"@itsmapleleaf/gatekeeper": "^0.9.0",
+		"@itsmapleleaf/gatekeeper": "^0.9.1",
 		"bufferutil": "^4.0.5",
-		"chalk": "^4.1.2",
+		"chalk": "^5.0.0",
 		"discord.js": "^13.3.1",
 		"dotenv": "^10.0.0",
-		"esno": "^0.12.1",
 		"ffmpeg-static": "^4.4.0",
 		"jsonfile": "^6.1.0",
 		"libsodium-wrappers": "^0.7.9",
