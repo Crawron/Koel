@@ -1,8 +1,27 @@
+import sys
 from itertools import islice
+from logging.config import dictConfig
 from os import stat_result
 from tokenize import String
-from flask import Flask, request, jsonify
+
 import youtube_dl
+from flask import Flask, jsonify, request
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': sys.stdout,
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
 
 app = Flask(__name__)
 
