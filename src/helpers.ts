@@ -26,7 +26,7 @@ export const twoDigits = (n: number) => n.toString().padStart(2, "0")
 
 /** Format seconds to human time */
 export function fmtTime(time: number): string {
-	const seconds = time
+	const seconds = Math.floor(time)
 	const minutes = Math.floor(seconds / 60)
 	const hours = Math.floor(minutes / 60)
 
