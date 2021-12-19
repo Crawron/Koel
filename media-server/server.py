@@ -1,8 +1,5 @@
 import sys
-from itertools import islice
 from logging.config import dictConfig
-from os import stat_result
-from tokenize import String
 
 import youtube_dl
 from flask import Flask, jsonify, request
@@ -37,7 +34,13 @@ def get_video_metadata(url: str, noplaylist: bool = True) -> dict:
     }
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        return ydl.extract_info(url)
+        try:
+            return ydl.extract_info(url)
+        except Exception as e:
+            return {
+                "query": url,
+                "error": str(e)
+            }
 
 
 @app.route('/')
@@ -50,6 +53,9 @@ def source_metadata():
         }
 
     metadata = get_video_metadata(query)
+    if(metadata.get("error", None) is not None):
+        return jsonify(metadata)
+
     isList = len(metadata.get('entries', [])) > 0
 
     return {
