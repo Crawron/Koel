@@ -14,17 +14,22 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			},
 		},
 		run: (ctx) => {
+			if (ctx.user.id !== "109677308410875904") {
+				ctx.ephemeralReply(() => "Craw only command")
+				return
+			}
+
 			if (!guildCheck(ctx, ctx.guild)) return
 			const guildId = ctx.options.guild || ctx.guild.id
 
 			const controller = controllerStore.get(guildId)
 
 			if (!controller) {
-				ctx.reply(() => `No controller found for \`${guildId}\``)
+				ctx.ephemeralReply(() => `No controller found for \`${guildId}\``)
 				return
 			}
 
-			ctx.reply(
+			ctx.ephemeralReply(
 				() =>
 					`Controller for \`${guildId}\`:\n\`\`\`json\n${JSON.stringify(
 						controller.serialize(),
