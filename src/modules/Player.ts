@@ -1,18 +1,18 @@
-import { Timer } from "./Timer"
-import { Song } from "./Song"
-import { execaCommand } from "execa"
 import {
-	createAudioPlayer,
-	createAudioResource,
-	joinVoiceChannel,
-	getVoiceConnection,
 	AudioPlayer as DjsAudioPlayer,
-	NoSubscriberBehavior,
-	StreamType,
 	AudioPlayerStatus,
 	AudioResource,
+	createAudioPlayer,
+	createAudioResource,
+	getVoiceConnection,
+	joinVoiceChannel,
+	NoSubscriberBehavior,
+	StreamType,
 } from "@discordjs/voice"
 import { StageChannel, VoiceChannel } from "discord.js"
+import { execaCommand } from "execa"
+import { Song } from "./Song"
+import { Timer } from "./Timer"
 
 export class Player {
 	private song: Song | null = null
@@ -31,10 +31,10 @@ export class Player {
 		this.player = createAudioPlayer({
 			behaviors: { noSubscriber: NoSubscriberBehavior.Pause },
 		})
-		this.player.on("error", (error) => this.onError?.(error))
-		this.player.on("stateChange", (oldState, newState) => {
-			// TODO: handle incomplete playback
 
+		this.player.on("error", (error) => this.onError?.(error))
+
+		this.player.on("stateChange", (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Playing) {
 				if (this.paused) this.pause()
 				else this.resume()
