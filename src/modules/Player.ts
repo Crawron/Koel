@@ -126,14 +126,14 @@ export class Player {
 	resume() {
 		if (!this.audioResource) this.runStream()
 		this.timer.run()
-		this.player.unpause()
 		this.paused = false
+		this.player.unpause()
 	}
 
 	pause() {
 		this.timer.pause()
-		this.player.pause()
 		this.paused = true
+		this.player.pause()
 	}
 
 	togglePause() {
