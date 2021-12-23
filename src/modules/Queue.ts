@@ -1,7 +1,6 @@
+import { computed, makeObservable, observable } from "mobx"
 import { cap, shuffle, zip } from "../helpers"
 import { Song } from "./Song"
-
-import { makeObservable, computed, observable } from "mobx"
 
 export class Queue {
 	list: Song[] = []
@@ -94,7 +93,7 @@ export class Queue {
 	}
 
 	distribute(predicate: (song: Song) => string) {
-		const songs = this.remove(0, Infinity).map(
+		const songs = this.remove(1, Infinity).map(
 			(song) => [predicate(song), song] as const
 		)
 
@@ -105,6 +104,7 @@ export class Queue {
 			map.set(score, list)
 		}
 
-		this.add(zip(...map.values()))
+		const sortedMap = [...map.values()].sort((a, b) => a.length - b.length)
+		this.add(zip(...sortedMap))
 	}
 }
