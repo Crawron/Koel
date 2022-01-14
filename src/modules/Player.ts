@@ -146,11 +146,12 @@ export class Player {
 	setSong(song: Song | null) {
 		this.song = song
 
-		this.audioResource = null
 		this.retryCount = 0
 		this.timer.pause()
 		this.timer.reset()
 
+		this.player.stop(true)
+		this.audioResource = null
 		this.runStream()
 	}
 
@@ -181,9 +182,10 @@ export class Player {
 			windowsHide: false,
 		})
 
-		process.catch((error) => this.onError?.(error))
+		process.catch((error) => this.onError?.(error.shortMessage))
 
 		if (!process.stdout) throw new Error("No stdout")
+
 		return createAudioResource(process.stdout, {
 			inputType: StreamType.OggOpus,
 			inlineVolume: false,
