@@ -78,6 +78,21 @@ export function shuffle<T>([...array]: T[]): T[] {
 	return array
 }
 
+/** Evenly spread items in an array based on a predicate */
+export function distribute<T>(arr: T[], predicate: (item: T) => string): T[] {
+	const songs = arr.map((song) => [predicate(song), song] as const)
+
+	const map: Map<string, T[]> = new Map()
+	for (const [score, song] of songs) {
+		const list = map.get(score) || []
+		list.push(song)
+		map.set(score, list)
+	}
+
+	const sortedMap = [...map.values()].sort((a, b) => a.length - b.length)
+	return zip(...sortedMap)
+}
+
 export function cap(value: number, min: number, max: number) {
 	return Math.min(Math.max(value, min), max)
 }
