@@ -77,7 +77,7 @@ export class Player {
 		if (!this.song) return true
 		if (!this.song.duration) return true
 
-		return this.timer.time > this.song.duration - 5000
+		return this.timer.time > this.song.duration - 5
 	}
 
 	serialize() {
