@@ -7,14 +7,10 @@ The entire internal structure is being reorganized/rewritten. So commits are gon
 - **Media server port is hardcoded, don't**
 - **Missing bunch of fixes to the /play command, also more testing needed there**
   - WHICH BUNCH? WHY DIDN'T I WRITE THIS
-- **Auto-join when starting to play a queue**
-  - Actually i need specific notes on the behaviour for this cause i keep procrastinating on it for that reason
 - Get song media url at last minute, instead of on queueing
 - Bake seek time into Song object
-- /rejoin command for when vc gets crackly cause of djs
+- ~~/rejoin command for when vc gets crackly cause of djs~~
 - todo generate requirements.txt for python server
-- Forgot to handle behaviour when skipping last song in queue (_still_)
-- Also I just bricked my whole console by logging ffmpeg output, so maybe I wanna prevent that happening somehow?
 - Player: Retry logic working and it should be able to handle every possible playback failure I can recover from\*
   - \* i hope
 - TODO ability to cancel queuing
