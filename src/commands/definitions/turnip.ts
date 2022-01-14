@@ -33,7 +33,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 						"https://cdn.discordapp.com/attachments/722981100762300427/915066449737969674/turnip.mp3",
 					requester: ctx.user.id,
 					source: "youtube",
-					duration: 24000,
+					duration: 24,
 					thumbnailUrl:
 						"https://i.ytimg.com/vi_webp/tx2LXzM-Q2A/maxresdefault.webp",
 					uploader: "zamsire",
