@@ -149,7 +149,6 @@ export class Player {
 		this.timer.pause()
 		this.timer.reset()
 
-		// TODO kill
 		this.runStream()
 	}
 
