@@ -33,7 +33,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 			const controller = controllerStore.getOrCreate(ctx.guild.id)
 
-			const { song: request, position = Infinity } = ctx.options
+			const { song: request, position } = ctx.options
 
 			const discoveredSongs: MediaServerMetadataResponse["metadata"] = []
 			const addedSongs: Song[] = []
@@ -164,7 +164,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 					const songList = addedSongs
 						.map((song, i) =>
 							song.stringify({
-								index: i + position,
+								index: i + (position ?? controller.queue.upcoming.length + 1),
 								uploader: false,
 								requester: false,
 							})
@@ -190,7 +190,10 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 
 				if (phase === "finished")
 					return [
-						getQueueAddedMessage(addedSongs, position),
+						getQueueAddedMessage(
+							addedSongs,
+							position ?? controller.queue.upcoming.length + 1
+						),
 						errors.length > 0 &&
 							embedComponent({
 								author: { name: "There's been some issues" },
