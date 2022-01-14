@@ -1,17 +1,30 @@
 import { computed, makeObservable, observable } from "mobx"
-import { cap, shuffle, zip } from "../helpers"
+import { cap, distribute, shuffle } from "../helpers"
 import { Song } from "./Song"
 
 export class Queue {
 	list: Song[] = []
+	private _autoSorter: (song: Song[]) => Song[] = (songs) => songs
 	private _listPivot = 0
 
+	/** @param autoSorter Every time the queue changes, organize upcoming elements with this function */
 	constructor() {
 		makeObservable<this, "_listPivot">(this, {
 			list: observable,
 			_listPivot: observable,
 			current: computed,
 		})
+	}
+
+	set autoSorter(value: (song: Song[]) => Song[]) {
+		this._autoSorter = value
+		this.add(this._autoSorter(this.remove(1, Infinity)))
+	}
+
+	runAutoSorter() {
+		const toSort = this.list.splice(this.listPivot + 1, Infinity)
+		const sorted = this._autoSorter(toSort)
+		this.list.splice(this.listPivot + 1, 0, ...sorted)
 	}
 
 	serialize() {
@@ -57,16 +70,19 @@ export class Queue {
 	add(songs: Song[], position = Infinity) {
 		if (position < 0) this.listPivot += songs.length
 		this.list.splice(this.listPivot + position, 0, ...songs)
+		this.runAutoSorter()
 	}
 
 	/**
 	 * @param position Relative to listPivot
 	 * @param count Number of songs to remove
-	 * @returns The deleted song
+	 * @returns The deleted songs
 	 */
 	remove(position: number, count = 1) {
 		if (position < 0) this.listPivot -= count
-		return this.list.splice(this.listPivot + position, count)
+		const removed = this.list.splice(this.listPivot + position, count)
+		this.runAutoSorter()
+		return removed
 	}
 
 	/** Deletes only upcomming songs */
@@ -93,18 +109,7 @@ export class Queue {
 	}
 
 	distribute(predicate: (song: Song) => string) {
-		const songs = this.remove(1, Infinity).map(
-			(song) => [predicate(song), song] as const
-		)
-
-		const map: Map<string, Song[]> = new Map()
-		for (const [score, song] of songs) {
-			const list = map.get(score) || []
-			list.push(song)
-			map.set(score, list)
-		}
-
-		const sortedMap = [...map.values()].sort((a, b) => a.length - b.length)
-		this.add(zip(...sortedMap))
+		const songs = this.remove(1, Infinity)
+		this.add(distribute(songs, predicate))
 	}
 }
