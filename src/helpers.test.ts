@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest"
 import { focusOn, paginate } from "./helpers"
 
 const sampleArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
