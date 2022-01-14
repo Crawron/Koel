@@ -11,14 +11,14 @@ export function closeNums(a: number, b: number, closeBy: number) {
 	return Math.abs(a - b) <= closeBy
 }
 
-/** Takes a time string (hh:ss:mm) and returns its value in milliseconds */
+/** Takes a time string (hh:ss:mm) and returns its value in seconds */
 export function parseTime(time: string) {
 	const [seconds = 0, minutes = 0, hours = 0] = time
 		.split(":")
 		.map((n) => parseInt(n))
 		.reverse()
 
-	return ((hours * 60 + minutes) * 60 + seconds) * 1000
+	return (hours * 60 + minutes) * 60 + seconds
 }
 
 /** Format a number to be two digits or more */
@@ -186,4 +186,9 @@ export function safeNewHttpUrl(url: string) {
 	} catch {
 		return
 	}
+}
+
+/** Date.now() in seconds */
+export function nowSeconds() {
+	return Math.floor(Date.now() / 1000)
 }
