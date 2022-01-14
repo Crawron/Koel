@@ -125,6 +125,9 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 				replyHandle.refresh()
 			}
 
+			if (ctx.member?.voice?.channel && !controller.player.isConnected)
+				controller.player.connect(ctx.member.voice.channel)
+
 			const reply = ctx.reply(() => {
 				if (phase === "prompting") {
 					return [
