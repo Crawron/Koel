@@ -13,10 +13,11 @@ The entire internal structure is being reorganized/rewritten. So commits are gon
 - Also I just bricked my whole console by logging ffmpeg output, so maybe I wanna prevent that happening somehow?
 - Player: Retry logic working and it should be able to handle every possible playback failure I can recover from\*
   - \* i hope
+- TODO ability to cancel queuing
 
 ## Bugs
 
-- Unhandled stale media source links (_has_ been an issue now)
+- ~~Unhandled stale media source links (_has_ been an issue now)~~
 - Crash in the middle of queuing a playlist leads to it queueing incompletely
 - Missing audio files' duration (direct file source) (_maybe_ won't fix)
 - Corrupted queue storage prevents startup
