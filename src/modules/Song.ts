@@ -4,6 +4,7 @@ import { escFmting, fmtTime, focusOn, isTruthy, twoDigits } from "../helpers"
 export class Song {
 	title: string
 	requester: Snowflake
+	/** in seconds */
 	duration?: number
 	thumbnailUrl?: string
 	pageUrl: string
