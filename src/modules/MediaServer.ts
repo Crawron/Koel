@@ -16,10 +16,9 @@ class MediaServer {
 
 	/** Start media server to begin accepting requests. Will restart if already running */
 	startServer() {
-		// TODO missing server error logs
 		this.stopServer()
 
-		this.process = execa("./media-server/env/bin/python", [
+		this.process = execa("./media-server/env/bin/python3.10", [
 			"./media-server/server.py",
 		])
 
@@ -31,7 +30,8 @@ class MediaServer {
 	}
 
 	stopServer() {
-		this.process?.kill()
+		if (!this.process) return
+		this.process.kill()
 		this.process = null
 
 		log(`Media server stopped`, LogLevel.Info)
