@@ -37,10 +37,12 @@ export class Player {
 		this.player.on("stateChange", (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Playing) {
 				if (this.paused) this.pause()
+				else this.timer.run()
 			}
 
 			if (newState.status === AudioPlayerStatus.Paused) {
 				if (!this.paused) this.resume()
+				else this.timer.pause()
 			}
 
 			if (newState.status === AudioPlayerStatus.AutoPaused) {
