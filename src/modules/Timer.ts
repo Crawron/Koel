@@ -1,6 +1,7 @@
 /* Listen. I need something that can keep track of how much time has passed in very weird, whacky, strange, scenarios. There's a lot of time sensistive stuff in this project and for some reason none of the tools given to me actually are useful to keep track of anything, so I'm making my own */
 
 import { nowSeconds } from "../helpers"
+import { log, LogLevel } from "../logging"
 
 export class Timer {
 	private accumulatedTime = 0
@@ -8,11 +9,13 @@ export class Timer {
 
 	/** Start counting time, or resume counting if paused */
 	run() {
+		log("Timer running", LogLevel.Debug)
 		this.startingTime = nowSeconds()
 	}
 
 	/** Pause */
 	pause() {
+		log(`Timer paused at ${this.time}`, LogLevel.Debug)
 		this.accumulatedTime = this.time
 		this.startingTime = null
 	}
