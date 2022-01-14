@@ -16,7 +16,7 @@ export class Controller {
 			() => this.queue.current,
 			(current) => {
 				log(`Current song changed: ${current?.title}`, LogLevel.Debug)
-				if (current) this.player.setSong(current)
+				this.player.setSong(current ?? null)
 			}
 		)
 
