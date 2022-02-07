@@ -26,7 +26,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: cmdName("play"),
 		aliases: cmdName(["p"]),
-		description: "Queue a song then playing",
+		description: "Queue a song then play",
 		options: playCommandOptions,
 		run: async (ctx) => {
 			if (!guildCheck(ctx, ctx.guild)) return
