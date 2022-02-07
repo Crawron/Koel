@@ -9,6 +9,7 @@ The entire internal structure is being reorganized/rewritten. So commits are gon
   - WHICH BUNCH? WHY DIDN'T I WRITE THIS
 - Get song media url at last minute, instead of on queueing
 - Bake seek time into Song object
+- Playback error messages may log sensitive info
 - ~~/rejoin command for when vc gets crackly cause of djs~~
 - todo generate requirements.txt for python server
 - Player: Retry logic working and it should be able to handle every possible playback failure I can recover from\*
