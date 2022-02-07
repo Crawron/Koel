@@ -145,12 +145,10 @@ export function debounce<Args extends unknown[]>(
 export function cmdName<T extends string | string[]>(names: T): T {
 	if (Array.isArray(names))
 		return names.map((name) =>
-			process.env.NODE_ENV === "production" ? name : `char-${name}`
+			process.env.NODE_ENV === "production" ? name : `c-${name}`
 		) as T
 	else
-		return process.env.NODE_ENV === "production"
-			? names
-			: (`char-${names}` as T)
+		return process.env.NODE_ENV === "production" ? names : (`c-${names}` as T)
 }
 
 export function zip<T extends unknown>(...arrays: T[][]): T[] {
