@@ -8,7 +8,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 	gatekeeper.addSlashCommand({
 		name: cmdName("queue"),
 		description: "View the current queue",
-		aliases: ["q"],
+		aliases: cmdName(["q"]),
 		options: {
 			page: {
 				description: "Which page to view",
