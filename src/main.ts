@@ -15,6 +15,7 @@ mobxConfigure({ enforceActions: "never" })
 await Gatekeeper.create({
 	name: "Koel",
 	client: djsClient,
+	scope: process.env.NODE_ENV === "production" ? "global" : "guild",
 	commandFolder: path.join(
 		filePath(import.meta.url).dirname,
 		"commands/definitions"
