@@ -1,6 +1,5 @@
 import { Gatekeeper } from "@itsmapleleaf/gatekeeper"
 import { cmdName, sleep } from "../../helpers"
-import { djsClient } from "../../main"
 import { controllerStore } from "../../stores/controllerStore"
 import { guildCheck, memberCheck } from "../common"
 
@@ -14,9 +13,7 @@ export default function defineCommands(gatekeeper: Gatekeeper) {
 			if (!memberCheck(ctx, ctx.member)) return
 
 			const controller = controllerStore.getOrCreate(ctx.guild.id)
-			const vc = djsClient.guilds.cache
-				.get(ctx.guild.id)
-				?.voiceStates.cache.get(ctx.member.id)?.channel
+			const vc = ctx.guild.voiceStates.cache.get(ctx.member.id)?.channel
 
 			if (!vc) {
 				ctx.reply(() => `I'm not in a voice channel`)
